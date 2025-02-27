@@ -151,7 +151,10 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components\TransformComponent.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="project\Core\GameObject.h" />
+    <ClInclude Include="project\Entities\Player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

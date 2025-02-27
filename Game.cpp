@@ -1,9 +1,17 @@
 ﻿// Game.cpp
 #include "Game.h"
 #include <iostream>
+#include "project/Components/TransformComponent.h"
+#include "project/Core/GameObject.h"
+#include "project/Entities/Player.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
+
+// Создание списка объектов
+std::vector<std::shared_ptr<GameObject>> entities;
+
+std::shared_ptr<GameObject> player;
 
 // Designer
 Game::Game(const char* title, int width, int height) {
@@ -65,13 +73,18 @@ void Game::Initialize() {
 void Game::LoadContent() {
 	std::cout << "Loading content..." << std::endl;
 
-
+	// Создание игрока
+	player = std::make_shared<Player>();
+	entities.push_back(player);
 }
 
 // Logic Update
 void Game::Update(float deltaTime) 
 {
-		
+	auto transform = player->GetComponent<TransformComponent>();
+
+	std::cout << transform->Position.x << std::endl;
+	std::cout << transform->Position.y << std::endl;
 }
 
 // Frame rendering
@@ -114,12 +127,12 @@ void Game::Run() {
 		float deltaTime = (currentTime - lastTime) / 1000.0f; // Time difference between frames
 		lastTime = currentTime;
 
-		HandleEvents();
-
 		// Logic Update
 		Update(deltaTime);
 
 		Draw();
+
+		HandleEvents();
 
 		// Restriction FPS
 		Uint32 frameTime = SDL_GetTicks() - currentTime;

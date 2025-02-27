@@ -6,5 +6,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Components\TransformComponent.h" />
+    <ClInclude Include="project\Entities\Player.h" />
+    <ClInclude Include="project\Core\GameObject.h" />
   </ItemGroup>
 </Project>
