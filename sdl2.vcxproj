@@ -149,12 +149,25 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="project\Core\Camera.cpp" />
+    <ClCompile Include="project\Core\GameObject.cpp" />
+    <ClCompile Include="project\Entities\Player.cpp" />
+    <ClCompile Include="project\Systems\Animation.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Components\TransformComponent.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="project\Components\AnimationComponent.h" />
+    <ClInclude Include="project\Components\MovementComponent.h" />
+    <ClInclude Include="project\Components\PhysicsComponent.h" />
+    <ClInclude Include="project\Components\RenderComponent.h" />
+    <ClInclude Include="project\Components\StateComponent.h" />
+    <ClInclude Include="project\Components\TransformComponent.h" />
+    <ClInclude Include="project\Core\Camera.h" />
+    <ClInclude Include="project\Core\Component.h" />
     <ClInclude Include="project\Core\GameObject.h" />
     <ClInclude Include="project\Entities\Player.h" />
+    <ClInclude Include="project\Systems\Animation.h" />
+    <ClInclude Include="project\Systems\MovementSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -81,10 +81,9 @@ void Game::LoadContent() {
 // Logic Update
 void Game::Update(float deltaTime) 
 {
-	auto transform = player->GetComponent<TransformComponent>();
+	// auto transform = player->GetComponent<TransformComponent>();
 
-	std::cout << transform->Position.x << std::endl;
-	std::cout << transform->Position.y << std::endl;
+	std::cout << "Logic Update" << std::endl;
 }
 
 // Frame rendering

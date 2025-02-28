@@ -2,11 +2,17 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
+#include "../Components/TransformComponent.h"
+#include "../Components/RenderComponent.h"
+#include "../Components/AnimationComponent.h"
+
+#include "Camera.h"
+
 #include <unordered_map>
 #include <string>
 #include <memory>
-
-class Component {};
+#include <SDL.h>
+#include "Component.h"
 
 class GameObject {
 public:
@@ -21,6 +27,10 @@ public:
     std::shared_ptr<T> GetComponent() {
         return std::static_pointer_cast<T>(components[typeid(T).name()]);
     }
+
+    void Update(float deltaTime);
+    void Draw(SDL_Renderer* renderer, const Camera& camera);
+
 };
 
 #endif // GAME_OBJECT_H
