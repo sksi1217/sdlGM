@@ -33,21 +33,21 @@ void GameObject::ResolveCollision(GameObject* other) {
     if (overlapX < overlapY) {
         if (rectA.x < rectB.x) {
             transform->Position.x -= overlapX; // Коллизия слева
-            ApplyRepulsion(this, other);
+            ApplyRepulsion(this, other, true, -1.0f);
         }
         else if (rectA.x > rectB.x) {
             transform->Position.x += overlapX; // Коллизия справа
-            ApplyRepulsion(this, other);
+            ApplyRepulsion(this, other, true, 1.0f);
         }
     }
     else {
         if (rectA.y < rectB.y) {
             transform->Position.y -= overlapY; // Коллизия сверху
-            ApplyRepulsion(this, other);
+            ApplyRepulsion(this, other, false, -1.0f);
         }
         else if (rectA.y > rectB.y) {
             transform->Position.y += overlapY; // Коллизия снизу
-            ApplyRepulsion(this, other);
+            ApplyRepulsion(this, other, false, 1.0f);
         }
     }
 }
@@ -65,42 +65,24 @@ bool GameObject::CheckCollision(GameObject* other) {
     return colliderA->CheckCollision(*colliderB);
 }
 
-// Применение силы отталкивания
-void GameObject::ApplyRepulsion(GameObject* obj, GameObject* other) {
-    auto colliderA = obj->GetComponent<ColliderComponent>();
-    auto colliderB = other->GetComponent<ColliderComponent>();
+void GameObject::ApplyRepulsion(GameObject* obj, GameObject* other, bool isXAxis, float direction) {
+    auto stateB = other->GetComponent<StateComponent>();
+    if (stateB->IsStatic) return;
 
     auto physicsA = obj->GetComponent<PhysicsComponent>();
     auto physicsB = other->GetComponent<PhysicsComponent>();
-
-    if (!colliderA || !colliderB || !physicsA || !physicsB) return;
-
-    SDL_FPoint centerA = { obj->GetComponent<TransformComponent>()->Position.x + colliderA->Collider.w / 2.0f,
-                          obj->GetComponent<TransformComponent>()->Position.y + colliderA->Collider.h / 2.0f };
-    SDL_FPoint centerB = { other->GetComponent<TransformComponent>()->Position.x + colliderB->Collider.w / 2.0f,
-                          other->GetComponent<TransformComponent>()->Position.y + colliderB->Collider.h / 2.0f };
-
-    SDL_FPoint direction = { centerA.x - centerB.x, centerA.y - centerB.y };
-    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-
-    if (distance == 0.0f) {
-        distance = 0.001f; // Избегаем деление на ноль
-    }
-
-    SDL_FPoint normalizedDirection = { direction.x / distance, direction.y / distance };
     float combinedMass = physicsA->Mass + physicsB->Mass;
     float force = physicsA->PushForce * (physicsA->Mass / combinedMass);
 
-    SDL_FPoint pushVector = { normalizedDirection.x * force, normalizedDirection.y * force };
+    float pushForce = force * direction;
 
-    if (auto transformA = obj->GetComponent<TransformComponent>()) {
-        transformA->Position.x += pushVector.x;
-        transformA->Position.y += pushVector.y;
+    if (isXAxis) {
+        obj->GetComponent<TransformComponent>()->Position.x += pushForce;
+        other->GetComponent<TransformComponent>()->Position.x -= pushForce * (physicsB->Mass / physicsA->Mass);
     }
-
-    if (auto transformB = other->GetComponent<TransformComponent>()) {
-        transformB->Position.x -= pushVector.x * (physicsB->Mass / physicsA->Mass);
-        transformB->Position.y -= pushVector.y * (physicsB->Mass / physicsA->Mass);
+    else {
+        obj->GetComponent<TransformComponent>()->Position.y += pushForce;
+        other->GetComponent<TransformComponent>()->Position.y -= pushForce * (physicsB->Mass / physicsA->Mass);
     }
 }
 

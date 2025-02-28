@@ -18,7 +18,7 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 
 	// PhysicsComponent: Масса и сила отталкивания
 	auto physics = std::make_shared<PhysicsComponent>();
-	physics->Mass = 100;
+	// physics->Mass = 100;
 	AddComponent(physics);
 
 	// RenderComponent: Текстура и цвет

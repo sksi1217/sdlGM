@@ -13,7 +13,4 @@ class Skelet : public GameObject {
 public:
     // Конструктор с параметрами
     Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture);
-
-    void Update(float deltaTime) override;
-
 };

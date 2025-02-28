@@ -41,10 +41,3 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	collider->HeightColliderY = 16; // Высота коллайдера
 	AddComponent(collider);
 }
-
-void Skelet::Update(float deltaTime) {
-	auto collider = GetComponent<ColliderComponent>();
-	auto transform = GetComponent<TransformComponent>();
-
-	collider->UpdatePosition(transform->Position);
-}

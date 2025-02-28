@@ -11,9 +11,6 @@
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 
-// Создание списка объектов
-std::vector<std::shared_ptr<GameObject>> entities;
-
 std::shared_ptr<GameObject> player;
 std::shared_ptr<GameObject> enemy;
 std::shared_ptr<GameObject> enemy1;
@@ -89,25 +86,24 @@ void Game::LoadContent() {
 
 	// Создание игрока
 	player = std::make_shared<Player>(SDL_FPoint{ 0, 40 }, playerTexture);
-	entities.push_back(player);
+	ManagerGame::entities.push_back(player);
 
 	enemy = std::make_shared<Skelet>(SDL_FPoint{ 16, 0 }, boxTexture);
 	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, boxTexture);
 
 
-	entities.push_back(enemy);
-	entities.push_back(enemy1);
+	ManagerGame::entities.push_back(enemy);
+	ManagerGame::entities.push_back(enemy1);
 }
 
 // Logic Update
 void Game::Update(float deltaTime) 
 {
-
-	сollisionSystem.Update(entities);
-
-	for (auto& obj : entities) {
+	for (auto& obj : ManagerGame::entities) {
 		obj->Update(deltaTime);
 	}
+
+	сollisionSystem.Update();
 
 	camera.UpdateCamera(player->GetComponent<TransformComponent>()->Position, deltaTime);
 }
@@ -118,7 +114,7 @@ void Game::Draw() {
 	SDL_RenderClear(renderer);
 
 	// Drawing of all objects
-	for (auto& obj : entities) {
+	for (auto& obj : ManagerGame::entities) {
 		obj->Draw(renderer, camera);
 	}
 

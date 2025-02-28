@@ -153,6 +153,7 @@
     <ClCompile Include="project\Core\GameObject.cpp" />
     <ClCompile Include="project\Entities\Player.cpp" />
     <ClCompile Include="project\Entities\Skelet.cpp" />
+    <ClCompile Include="project\Resources\ManagerGame.cpp" />
     <ClCompile Include="project\Systems\Animation.cpp" />
     <ClCompile Include="project\Systems\CollisionSystem.cpp" />
     <ClCompile Include="project\Utils\TextureLoader.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="project\Core\GameObject.h" />
     <ClInclude Include="project\Entities\Player.h" />
     <ClInclude Include="project\Entities\Skelet.h" />
+    <ClInclude Include="project\Resources\ManagerGame.h" />
     <ClInclude Include="project\Systems\Animation.h" />
     <ClInclude Include="project\Systems\CollisionSystem.h" />
     <ClInclude Include="project\Systems\MovementSystem.h" />

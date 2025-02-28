@@ -8,6 +8,7 @@
 #include "../Components/PhysicsComponent.h"
 #include "../Components/RenderComponent.h"
 #include "../Utils/TextureLoader.h"
+#include "../Resources/ManagerGame.h"
 
 class Player : public GameObject {
 public:

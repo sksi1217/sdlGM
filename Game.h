@@ -7,6 +7,7 @@
 #include <SDL_image.h>
 #include <string>
 
+#include "project/Resources/ManagerGame.h"
 
 class Game {
 public:

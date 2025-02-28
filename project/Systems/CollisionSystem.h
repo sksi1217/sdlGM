@@ -2,8 +2,9 @@
 #include <vector>
 #include <memory>
 #include "../Core/GameObject.h"
+#include "../Resources/ManagerGame.h"
 
 class CollisionSystem {
 public:
-    void Update(std::vector<std::shared_ptr<GameObject>>& entities);
+    void Update();
 };
