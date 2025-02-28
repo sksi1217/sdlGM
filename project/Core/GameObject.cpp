@@ -14,42 +14,70 @@ void GameObject::Update(float deltaTime) {
 
 // Решение коллизии
 void GameObject::ResolveCollision(GameObject* other) {
-    auto transform = GetComponent<TransformComponent>();
-
+    auto transformA = GetComponent<TransformComponent>();
     auto colliderA = GetComponent<ColliderComponent>();
     auto stateA = GetComponent<StateComponent>();
+    auto transformB = other->GetComponent<TransformComponent>();
     auto colliderB = other->GetComponent<ColliderComponent>();
     auto stateB = other->GetComponent<StateComponent>();
 
-    if (!stateA->IsCollidable || !stateB->IsCollidable) return;
-    if (!colliderA || !colliderB) return;
+    if (!stateA->IsCollidable || !stateB->IsCollidable || !colliderA || !colliderB)
+        return;
 
     const SDL_Rect& rectA = colliderA->Collider;
     const SDL_Rect& rectB = colliderB->Collider;
 
+    // Вычисляем перекрытие для каждой оси
     int overlapX = std::min(rectA.x + rectA.w - rectB.x, rectB.x + rectB.w - rectA.x);
     int overlapY = std::min(rectA.y + rectA.h - rectB.y, rectB.y + rectB.h - rectA.y);
 
-    if (overlapX < overlapY) {
-        if (rectA.x < rectB.x) {
-            transform->Position.x -= overlapX; // Коллизия слева
-            ApplyRepulsion(this, other, true, -1.0f);
+    // Определяем направление разрешения коллизии
+    bool moveX = overlapX > 0;
+    bool moveY = overlapY > 0;
+
+    // Проверяем, какой оси приоритет (опционально)
+    if (moveX && moveY) {
+        // Если перекрытие по обеим осям, выбираем ось с меньшим перекрытием
+        if (overlapX < overlapY) {
+            moveY = false;
         }
-        else if (rectA.x > rectB.x) {
-            transform->Position.x += overlapX; // Коллизия справа
-            ApplyRepulsion(this, other, true, 1.0f);
-        }
-    }
-    else {
-        if (rectA.y < rectB.y) {
-            transform->Position.y -= overlapY; // Коллизия сверху
-            ApplyRepulsion(this, other, false, -1.0f);
-        }
-        else if (rectA.y > rectB.y) {
-            transform->Position.y += overlapY; // Коллизия снизу
-            ApplyRepulsion(this, other, false, 1.0f);
+        else {
+            moveX = false;
         }
     }
+
+    // Вычисляем направление вектора разрешения
+    SDL_FPoint direction = MathUtils::Normalize(MathUtils::Subtract(transformB->Position, transformA->Position));
+
+    if (moveX) {
+        transformA->Position.x -= overlapX * direction.x;
+        transformB->Position.x += overlapX * direction.x;
+    }
+
+    if (moveY) {
+        transformA->Position.y -= overlapY * direction.y;
+        transformB->Position.y += overlapY * direction.y;
+    }
+
+    // Применяем силу толчка как вектор
+    ApplyRepulsion(other, direction);
+}
+
+void GameObject::ApplyRepulsion(GameObject* other, const SDL_FPoint& direction) {
+    auto stateB = other->GetComponent<StateComponent>();
+    if (stateB->IsStatic) return;
+
+    auto physicsA = GetComponent<PhysicsComponent>();
+    auto physicsB = other->GetComponent<PhysicsComponent>();
+
+    float combinedMass = physicsA->Mass + physicsB->Mass;
+    float force = physicsA->PushForce * (physicsA->Mass / combinedMass);
+
+    // SDL_FPoint pushForce = Multiply(direction, force);
+    SDL_FPoint pushForce = { direction.x * force, direction.y * force };
+
+    other->GetComponent<TransformComponent>()->Position =
+        MathUtils::Add(other->GetComponent<TransformComponent>()->Position, pushForce);
 }
 
 // Проверка столкновения
@@ -63,27 +91,6 @@ bool GameObject::CheckCollision(GameObject* other) {
     if (!stateA->IsCollidable || !stateB->IsCollidable) return false;
 
     return colliderA->CheckCollision(*colliderB);
-}
-
-void GameObject::ApplyRepulsion(GameObject* obj, GameObject* other, bool isXAxis, float direction) {
-    auto stateB = other->GetComponent<StateComponent>();
-    if (stateB->IsStatic) return;
-
-    auto physicsA = obj->GetComponent<PhysicsComponent>();
-    auto physicsB = other->GetComponent<PhysicsComponent>();
-    float combinedMass = physicsA->Mass + physicsB->Mass;
-    float force = physicsA->PushForce * (physicsA->Mass / combinedMass);
-
-    float pushForce = force * direction;
-
-    if (isXAxis) {
-        obj->GetComponent<TransformComponent>()->Position.x += pushForce;
-        other->GetComponent<TransformComponent>()->Position.x -= pushForce * (physicsB->Mass / physicsA->Mass);
-    }
-    else {
-        obj->GetComponent<TransformComponent>()->Position.y += pushForce;
-        other->GetComponent<TransformComponent>()->Position.y -= pushForce * (physicsB->Mass / physicsA->Mass);
-    }
 }
 
 // Object rendering

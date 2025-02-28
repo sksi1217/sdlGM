@@ -156,6 +156,7 @@
     <ClCompile Include="project\Resources\ManagerGame.cpp" />
     <ClCompile Include="project\Systems\Animation.cpp" />
     <ClCompile Include="project\Systems\CollisionSystem.cpp" />
+    <ClCompile Include="project\Utils\MathUtils.cpp" />
     <ClCompile Include="project\Utils\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +177,7 @@
     <ClInclude Include="project\Systems\Animation.h" />
     <ClInclude Include="project\Systems\CollisionSystem.h" />
     <ClInclude Include="project\Systems\MovementSystem.h" />
+    <ClInclude Include="project\Utils\MathUtils.h" />
     <ClInclude Include="project\Utils\TextureLoader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

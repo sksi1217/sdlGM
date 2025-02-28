@@ -49,15 +49,11 @@ void Player::Update(float deltaTime) {
 
 	if (!transform || !movement) return;
 
-
-	// SDL_FPoint velocity = { 0.0f, 0.0f };
 	transform->Velocity = { 0.0f, 0.0f };
-
 	
 	const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
 
 	HandleMovement(keyboardState, transform->Velocity, deltaTime);
-
 
 	transform->Position.x += transform->Velocity.x * movement->Speed * deltaTime;
 	transform->Position.y += transform->Velocity.y * movement->Speed * deltaTime;
