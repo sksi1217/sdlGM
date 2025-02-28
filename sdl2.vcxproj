@@ -152,12 +152,15 @@
     <ClCompile Include="project\Core\Camera.cpp" />
     <ClCompile Include="project\Core\GameObject.cpp" />
     <ClCompile Include="project\Entities\Player.cpp" />
+    <ClCompile Include="project\Entities\Skelet.cpp" />
     <ClCompile Include="project\Systems\Animation.cpp" />
+    <ClCompile Include="project\Systems\CollisionSystem.cpp" />
     <ClCompile Include="project\Utils\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="project\Components\AnimationComponent.h" />
+    <ClInclude Include="project\Components\ColliderComponent.h" />
     <ClInclude Include="project\Components\MovementComponent.h" />
     <ClInclude Include="project\Components\PhysicsComponent.h" />
     <ClInclude Include="project\Components\RenderComponent.h" />
@@ -167,7 +170,9 @@
     <ClInclude Include="project\Core\Component.h" />
     <ClInclude Include="project\Core\GameObject.h" />
     <ClInclude Include="project\Entities\Player.h" />
+    <ClInclude Include="project\Entities\Skelet.h" />
     <ClInclude Include="project\Systems\Animation.h" />
+    <ClInclude Include="project\Systems\CollisionSystem.h" />
     <ClInclude Include="project\Systems\MovementSystem.h" />
     <ClInclude Include="project\Utils\TextureLoader.h" />
   </ItemGroup>

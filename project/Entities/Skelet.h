@@ -9,21 +9,11 @@
 #include "../Components/RenderComponent.h"
 #include "../Utils/TextureLoader.h"
 
-class Player : public GameObject {
+class Skelet : public GameObject {
 public:
     // Конструктор с параметрами
-    Player(const SDL_FPoint& startPosition, SDL_Texture* texture);
+    Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture);
 
     void Update(float deltaTime) override;
 
-private:
-    void HandleMovement(const Uint8* keyboardState, SDL_FPoint& velocity, float deltaTime);
-    void UpdateSpriteRow(const SDL_FPoint& velocity);
-
-    enum Direction {
-        DownRow = 1,
-        UpRow = 2,
-        RightRow = 3,
-        LeftRow = 4,
-    };
 };

@@ -5,6 +5,8 @@
 #include "project/Core/GameObject.h"
 #include "project/Entities/Player.h"
 #include "project/Utils/TextureLoader.h"
+#include "project/Systems/CollisionSystem.h"
+#include "project/Entities/Skelet.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -13,8 +15,11 @@ const int SCREEN_HEIGHT = 600;
 std::vector<std::shared_ptr<GameObject>> entities;
 
 std::shared_ptr<GameObject> player;
+std::shared_ptr<GameObject> enemy;
+std::shared_ptr<GameObject> enemy1;
 
 Camera camera = { {800, 600}, 5 };
+CollisionSystem сollisionSystem;
 
 // Designer
 Game::Game(const char* title, int width, int height) {
@@ -80,16 +85,29 @@ void Game::LoadContent() {
 	TextureLoader& loader = TextureLoader::GetInstance();
 
 	SDL_Texture* playerTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/player.png", renderer);
+	SDL_Texture* boxTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/box.png", renderer);
 
 	// Создание игрока
-	player = std::make_shared<Player>(SDL_FPoint{ 0, 0 }, playerTexture);
+	player = std::make_shared<Player>(SDL_FPoint{ 0, 40 }, playerTexture);
 	entities.push_back(player);
+
+	enemy = std::make_shared<Skelet>(SDL_FPoint{ 16, 0 }, boxTexture);
+	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, boxTexture);
+
+
+	entities.push_back(enemy);
+	entities.push_back(enemy1);
 }
 
 // Logic Update
 void Game::Update(float deltaTime) 
 {
-	player->Update(deltaTime);
+
+	сollisionSystem.Update(entities);
+
+	for (auto& obj : entities) {
+		obj->Update(deltaTime);
+	}
 
 	camera.UpdateCamera(player->GetComponent<TransformComponent>()->Position, deltaTime);
 }

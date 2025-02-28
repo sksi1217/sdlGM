@@ -1,9 +1,108 @@
-﻿#include "../Core/GameObject.h"
-#include "../Components/StateComponent.h"
+﻿#include "GameObject.h"
+#include <iostream>
+#include <algorithm>
 
-// Реализация метода Update
-void GameObject::Update(float deltaTime) { }
+// Обновление объекта
+void GameObject::Update(float deltaTime) {
+    auto transform = GetComponent<TransformComponent>();
+    auto collider = GetComponent<ColliderComponent>();
 
+    if (transform && collider) {
+        collider->UpdatePosition(transform->Position); // Обновляем позицию коллайдера
+    }
+}
+
+// Решение коллизии
+void GameObject::ResolveCollision(GameObject* other) {
+    auto transform = GetComponent<TransformComponent>();
+
+    auto colliderA = GetComponent<ColliderComponent>();
+    auto stateA = GetComponent<StateComponent>();
+    auto colliderB = other->GetComponent<ColliderComponent>();
+    auto stateB = other->GetComponent<StateComponent>();
+
+    if (!stateA->IsCollidable || !stateB->IsCollidable) return;
+    if (!colliderA || !colliderB) return;
+
+    const SDL_Rect& rectA = colliderA->Collider;
+    const SDL_Rect& rectB = colliderB->Collider;
+
+    int overlapX = std::min(rectA.x + rectA.w - rectB.x, rectB.x + rectB.w - rectA.x);
+    int overlapY = std::min(rectA.y + rectA.h - rectB.y, rectB.y + rectB.h - rectA.y);
+
+    if (overlapX < overlapY) {
+        if (rectA.x < rectB.x) {
+            transform->Position.x -= overlapX; // Коллизия слева
+            ApplyRepulsion(this, other);
+        }
+        else if (rectA.x > rectB.x) {
+            transform->Position.x += overlapX; // Коллизия справа
+            ApplyRepulsion(this, other);
+        }
+    }
+    else {
+        if (rectA.y < rectB.y) {
+            transform->Position.y -= overlapY; // Коллизия сверху
+            ApplyRepulsion(this, other);
+        }
+        else if (rectA.y > rectB.y) {
+            transform->Position.y += overlapY; // Коллизия снизу
+            ApplyRepulsion(this, other);
+        }
+    }
+}
+
+// Проверка столкновения
+bool GameObject::CheckCollision(GameObject* other) {
+    auto colliderA = GetComponent<ColliderComponent>();
+    auto stateA = GetComponent<StateComponent>();
+    auto colliderB = other->GetComponent<ColliderComponent>();
+    auto stateB = other->GetComponent<StateComponent>();
+
+    if (!colliderA || !colliderB) return false;
+    if (!stateA->IsCollidable || !stateB->IsCollidable) return false;
+
+    return colliderA->CheckCollision(*colliderB);
+}
+
+// Применение силы отталкивания
+void GameObject::ApplyRepulsion(GameObject* obj, GameObject* other) {
+    auto colliderA = obj->GetComponent<ColliderComponent>();
+    auto colliderB = other->GetComponent<ColliderComponent>();
+
+    auto physicsA = obj->GetComponent<PhysicsComponent>();
+    auto physicsB = other->GetComponent<PhysicsComponent>();
+
+    if (!colliderA || !colliderB || !physicsA || !physicsB) return;
+
+    SDL_FPoint centerA = { obj->GetComponent<TransformComponent>()->Position.x + colliderA->Collider.w / 2.0f,
+                          obj->GetComponent<TransformComponent>()->Position.y + colliderA->Collider.h / 2.0f };
+    SDL_FPoint centerB = { other->GetComponent<TransformComponent>()->Position.x + colliderB->Collider.w / 2.0f,
+                          other->GetComponent<TransformComponent>()->Position.y + colliderB->Collider.h / 2.0f };
+
+    SDL_FPoint direction = { centerA.x - centerB.x, centerA.y - centerB.y };
+    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    if (distance == 0.0f) {
+        distance = 0.001f; // Избегаем деление на ноль
+    }
+
+    SDL_FPoint normalizedDirection = { direction.x / distance, direction.y / distance };
+    float combinedMass = physicsA->Mass + physicsB->Mass;
+    float force = physicsA->PushForce * (physicsA->Mass / combinedMass);
+
+    SDL_FPoint pushVector = { normalizedDirection.x * force, normalizedDirection.y * force };
+
+    if (auto transformA = obj->GetComponent<TransformComponent>()) {
+        transformA->Position.x += pushVector.x;
+        transformA->Position.y += pushVector.y;
+    }
+
+    if (auto transformB = other->GetComponent<TransformComponent>()) {
+        transformB->Position.x -= pushVector.x * (physicsB->Mass / physicsA->Mass);
+        transformB->Position.y -= pushVector.y * (physicsB->Mass / physicsA->Mass);
+    }
+}
 
 // Object rendering
 void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
@@ -12,6 +111,7 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
     auto render = GetComponent<RenderComponent>();
     auto animationComponent = GetComponent<AnimationComponent>();
     auto state = GetComponent<StateComponent>();
+    auto collider = GetComponent<ColliderComponent>();
 
 
     // Проверяем, что все необходимые компоненты существуют
@@ -62,10 +162,10 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
     if (state->IsCollidable) {
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_Rect colliderRect = {
-            ((transform->Collider.x - camera.GetPosition().x) * cameraScale),
-            ((transform->Collider.y - camera.GetPosition().y) * cameraScale),
-            (transform->Collider.w * cameraScale),
-            (transform->Collider.h * cameraScale)
+            ((collider->Collider.x - camera.GetPosition().x) * cameraScale),
+            ((collider->Collider.y - camera.GetPosition().y) * cameraScale),
+            (collider->Collider.w * cameraScale),
+            (collider->Collider.h * cameraScale)
         };
         SDL_RenderDrawRect(renderer, &colliderRect);
     }
