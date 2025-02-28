@@ -5,13 +5,13 @@
 class Animation {
 public:
     // Size of one sprite
-    int FrameWidth;
-    int FrameHeight;
+    int FrameWidth = 16;
+    int FrameHeight = 16;
 
-    int CurrentFrame;
-    int TotalFrames;
-    float TimePerFrame; // Time between frames (in seconds)
-    float ElapsedTime;
+    int CurrentFrame = 0;
+    int TotalFrames = 8;
+    float TimePerFrame = 0.2f; // Time between frames (in seconds)
+    float ElapsedTime = 0;
 
     // Flag to determine if the object is moving
     bool IsPlaying;

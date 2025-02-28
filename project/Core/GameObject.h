@@ -28,8 +28,8 @@ public:
         return std::static_pointer_cast<T>(components[typeid(T).name()]);
     }
 
-    void Update(float deltaTime);
-    void Draw(SDL_Renderer* renderer, const Camera& camera);
+    virtual void Update(float deltaTime);
+    virtual void Draw(SDL_Renderer* renderer, const Camera& camera);
 
 };
 

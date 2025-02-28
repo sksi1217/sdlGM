@@ -13,7 +13,7 @@ public:
     SDL_FPoint Origin = { 0.0f, 0.0f };   // Точка поворота
     bool FlipHorizontal = false;        // Отражение по горизонтали
 
-    SDL_Rect Collider;                  // Коллизия
+    SDL_Rect Collider = { 0, 0, 1, 1 }; // Коллизия
     int OffsetColliderX = 0;            // Смещение коллизии по X
     int OffsetColliderY = 0;            // Смещение коллизии по Y
     int WidthColliderX = 0;             // Ширина коллизии

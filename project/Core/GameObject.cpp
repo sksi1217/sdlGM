@@ -1,6 +1,8 @@
 ﻿#include "../Core/GameObject.h"
-#include "../Systems/Animation.h"
 #include "../Components/StateComponent.h"
+
+// Реализация метода Update
+void GameObject::Update(float deltaTime) { }
 
 
 // Object rendering

@@ -3,6 +3,7 @@
 #define ANIMATION_COMPONENT_H
 
 #include "../Core/Component.h"
+#include "../Systems/Animation.h" // Включение определения класса Animation
 #include <memory>
 
 class Animation; // Forward declaration

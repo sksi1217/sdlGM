@@ -4,6 +4,7 @@
 #include "project/Components/TransformComponent.h"
 #include "project/Core/GameObject.h"
 #include "project/Entities/Player.h"
+#include "project/Utils/TextureLoader.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -12,6 +13,8 @@ const int SCREEN_HEIGHT = 600;
 std::vector<std::shared_ptr<GameObject>> entities;
 
 std::shared_ptr<GameObject> player;
+
+Camera camera = { {800, 600}, 5 };
 
 // Designer
 Game::Game(const char* title, int width, int height) {
@@ -73,17 +76,22 @@ void Game::Initialize() {
 void Game::LoadContent() {
 	std::cout << "Loading content..." << std::endl;
 
+	// Создание текстуры через TextureLoader
+	TextureLoader& loader = TextureLoader::GetInstance();
+
+	SDL_Texture* playerTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/player.png", renderer);
+
 	// Создание игрока
-	player = std::make_shared<Player>();
+	player = std::make_shared<Player>(SDL_FPoint{ 0, 0 }, playerTexture);
 	entities.push_back(player);
 }
 
 // Logic Update
 void Game::Update(float deltaTime) 
 {
-	// auto transform = player->GetComponent<TransformComponent>();
+	player->Update(deltaTime);
 
-	std::cout << "Logic Update" << std::endl;
+	camera.UpdateCamera(player->GetComponent<TransformComponent>()->Position, deltaTime);
 }
 
 // Frame rendering
@@ -91,7 +99,10 @@ void Game::Draw() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
-
+	// Drawing of all objects
+	for (auto& obj : entities) {
+		obj->Draw(renderer, camera);
+	}
 
 	SDL_RenderPresent(renderer);
 }

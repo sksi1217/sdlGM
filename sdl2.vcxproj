@@ -153,6 +153,7 @@
     <ClCompile Include="project\Core\GameObject.cpp" />
     <ClCompile Include="project\Entities\Player.cpp" />
     <ClCompile Include="project\Systems\Animation.cpp" />
+    <ClCompile Include="project\Utils\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
@@ -168,6 +169,7 @@
     <ClInclude Include="project\Entities\Player.h" />
     <ClInclude Include="project\Systems\Animation.h" />
     <ClInclude Include="project\Systems\MovementSystem.h" />
+    <ClInclude Include="project\Utils\TextureLoader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

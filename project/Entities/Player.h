@@ -7,17 +7,23 @@
 #include "../Components/StateComponent.h"
 #include "../Components/PhysicsComponent.h"
 #include "../Components/RenderComponent.h"
+#include "../Utils/TextureLoader.h"
 
 class Player : public GameObject {
 public:
-    Player() {
-        AddComponent(std::make_shared<TransformComponent>());
-        AddComponent(std::make_shared<MovementComponent>());
-        AddComponent(std::make_shared<StateComponent>());
-        AddComponent(std::make_shared<PhysicsComponent>());
-        AddComponent(std::make_shared<RenderComponent>());
-        AddComponent(std::make_shared<AnimationComponent>());
-    }
+    // Конструктор с параметрами
+    Player(const SDL_FPoint& startPosition, SDL_Texture* texture);
 
-    void Update(float deltaTime);
+    void Update(float deltaTime) override;
+
+private:
+    void HandleMovement(const Uint8* keyboardState, SDL_FPoint& velocity);
+    void UpdateSpriteRow(const SDL_FPoint& velocity);
+
+    enum Direction {
+        DownRow = 1,
+        UpRow = 2,
+        RightRow = 3,
+        LeftRow = 4,
+    };
 };
