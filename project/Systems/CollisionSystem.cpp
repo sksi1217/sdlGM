@@ -5,6 +5,7 @@ void CollisionSystem::Update() {
         for (size_t j = i + 1; j < ManagerGame::entities.size(); ++j) {
             if (ManagerGame::entities[i]->CheckCollision(ManagerGame::entities[j].get())) {
                 ManagerGame::entities[i]->ResolveCollision(ManagerGame::entities[j].get());
+                break;
             }
         }
     }

@@ -14,6 +14,7 @@ const int SCREEN_HEIGHT = 600;
 std::shared_ptr<GameObject> player;
 std::shared_ptr<GameObject> enemy;
 std::shared_ptr<GameObject> enemy1;
+std::shared_ptr<GameObject> enemy2;
 
 Camera camera = { {800, 600}, 5 };
 CollisionSystem сollisionSystem;
@@ -88,12 +89,14 @@ void Game::LoadContent() {
 	player = std::make_shared<Player>(SDL_FPoint{ 0, 40 }, playerTexture);
 	ManagerGame::entities.push_back(player);
 
-	enemy = std::make_shared<Skelet>(SDL_FPoint{ 16, 0 }, boxTexture);
+	enemy = std::make_shared<Skelet>(SDL_FPoint{ 0, 15 }, boxTexture);
 	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, boxTexture);
+	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 16, 0 }, boxTexture);
 
 
 	ManagerGame::entities.push_back(enemy);
 	ManagerGame::entities.push_back(enemy1);
+	ManagerGame::entities.push_back(enemy2);
 }
 
 // Logic Update

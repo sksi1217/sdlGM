@@ -15,11 +15,12 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 
 	// StateComponent: Активность и коллизии
 	auto state = std::make_shared<StateComponent>();
-	// state->IsStatic = true;
+	state->IsStatic = true;
 	AddComponent(state);
 
 	// PhysicsComponent: Масса и сила отталкивания
 	auto physics = std::make_shared<PhysicsComponent>();
+	physics->Mass = 0.1;
 	AddComponent(physics);
 
 	// RenderComponent: Текстура и цвет

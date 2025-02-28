@@ -5,20 +5,35 @@
 // Обновление объекта
 void GameObject::Update(float deltaTime) {
     auto transform = GetComponent<TransformComponent>();
-    auto collider = GetComponent<ColliderComponent>();
+    auto physics = GetComponent<PhysicsComponent>();
 
-    if (transform && collider) {
-        collider->UpdatePosition(transform->Position); // Обновляем позицию коллайдера
-    }
+    if (!transform || !physics) return;
+
+    // Обновляем скорость с учётом сил и трения
+    physics->Velocity = MathUtils::Add(physics->Velocity, physics->Acceleration);
+    physics->Velocity = MathUtils::Multiply(physics->Velocity, physics->Drag);
+
+    // Обновляем позицию с учитывая время
+    transform->Position = MathUtils::Add(transform->Position,
+        MathUtils::Multiply(physics->Velocity, deltaTime));
+
+    // Обнуляем ускорение для следующего кадра
+    physics->Acceleration = { 0, 0 };
+
+    // Обновляем коллайдер
+    auto collider = GetComponent<ColliderComponent>();
+    if (collider) collider->UpdatePosition(transform->Position);
 }
 
 // Решение коллизии
 void GameObject::ResolveCollision(GameObject* other) {
     auto transformA = GetComponent<TransformComponent>();
     auto colliderA = GetComponent<ColliderComponent>();
+    auto physicsA = GetComponent<PhysicsComponent>();
     auto stateA = GetComponent<StateComponent>();
     auto transformB = other->GetComponent<TransformComponent>();
     auto colliderB = other->GetComponent<ColliderComponent>();
+    auto physicsB = other->GetComponent<PhysicsComponent>();
     auto stateB = other->GetComponent<StateComponent>();
 
     if (!stateA->IsCollidable || !stateB->IsCollidable || !colliderA || !colliderB)
@@ -27,57 +42,111 @@ void GameObject::ResolveCollision(GameObject* other) {
     const SDL_Rect& rectA = colliderA->Collider;
     const SDL_Rect& rectB = colliderB->Collider;
 
-    // Вычисляем перекрытие для каждой оси
+    // Вычисляем перекрытие
     int overlapX = std::min(rectA.x + rectA.w - rectB.x, rectB.x + rectB.w - rectA.x);
     int overlapY = std::min(rectA.y + rectA.h - rectB.y, rectB.y + rectB.h - rectA.y);
 
-    // Определяем направление разрешения коллизии
-    bool moveX = overlapX > 0;
-    bool moveY = overlapY > 0;
+    // Определяем направление нормали
+    float nx = (rectA.x + rectA.w / 2) - (rectB.x + rectB.w / 2);
+    float ny = (rectA.y + rectA.h / 2) - (rectB.y + rectB.h / 2);
+    SDL_FPoint normal = MathUtils::Normalize({ nx, ny });
 
-    // Проверяем, какой оси приоритет (опционально)
-    if (moveX && moveY) {
-        // Если перекрытие по обеим осям, выбираем ось с меньшим перекрытием
-        if (overlapX < overlapY) {
-            moveY = false;
+    // Вычисляем глубину проникновения
+    float penetration = std::min(overlapX, overlapY);
+
+    // Применяем силы только к нестатическим объектам
+    if (!stateA->IsStatic && !stateB->IsStatic) {
+        float combinedMass = physicsA->Mass + physicsB->Mass;
+        float force = physicsA->PushForce * (physicsB->Mass / combinedMass);
+
+        if (!stateA->IsStatic) {
+            physicsA->Acceleration = MathUtils::Add(
+                physicsA->Acceleration,
+                MathUtils::Multiply(normal, force / physicsA->Mass)
+            );
         }
-        else {
-            moveX = false;
+
+        if (!stateB->IsStatic) {
+            physicsB->Acceleration = MathUtils::Add(
+                physicsB->Acceleration,
+                MathUtils::Multiply(MathUtils::Negate(normal), force / physicsB->Mass)
+            );
+        }
+    }
+    else
+    {
+        bool moveX = overlapX > 0;
+        bool moveY = overlapY > 0;
+
+        // Проверяем, какой оси приоритет (опционально)
+        if (moveX && moveY) {
+            // Если перекрытие по обеим осям, выбираем ось с меньшим перекрытием
+            if (overlapX < overlapY) {
+                moveY = false;
+            }
+            else {
+                moveX = false;
+            }
+        }
+
+        if (moveX) {
+            SDL_FPoint adjustment = MathUtils::Multiply(normal, penetration);
+            adjustment.y = 0; // Запрещаем смещение по оси X
+
+
+            transformA->Position = MathUtils::Add(transformA->Position, adjustment);
+        }
+
+        if (moveY) {
+            SDL_FPoint adjustment = MathUtils::Multiply(normal, penetration);
+            adjustment.x = 0; // Запрещаем смещение по оси X
+
+            transformA->Position = MathUtils::Add(transformA->Position, adjustment);
         }
     }
 
-    // Вычисляем направление вектора разрешения
-    SDL_FPoint direction = MathUtils::Normalize(MathUtils::Subtract(transformB->Position, transformA->Position));
 
-    if (moveX) {
-        transformA->Position.x -= overlapX * direction.x;
-        transformB->Position.x += overlapX * direction.x;
+    
+
+    /*
+    // Плавное смещение на глубину проникновения
+    if (stateA->IsStatic && stateB->IsStatic) {
+        // Оба статические, не двигаем
     }
+    else if (stateA->IsStatic) {
+        std::cout << "1" << std::endl;
 
-    if (moveY) {
-        transformA->Position.y -= overlapY * direction.y;
-        transformB->Position.y += overlapY * direction.y;
+        transformB->Position = MathUtils::Add(
+            transformB->Position,
+            MathUtils::Multiply(MathUtils::Negate(normal), penetration)
+        );
     }
+    else if (stateB->IsStatic) {
+        // std::cout << "2" << std::endl;
 
-    // Применяем силу толчка как вектор
-    ApplyRepulsion(other, direction);
-}
+        // Сдвигаем объект A
+        SDL_FPoint adjustment = MathUtils::Multiply(normal, penetration);
+        adjustment.x = 0; // Запрещаем смещение по оси X
 
-void GameObject::ApplyRepulsion(GameObject* other, const SDL_FPoint& direction) {
-    auto stateB = other->GetComponent<StateComponent>();
-    if (stateB->IsStatic) return;
+        // std::cout << normal.x << std::endl;
+        // std::cout << normal.y << std::endl;
 
-    auto physicsA = GetComponent<PhysicsComponent>();
-    auto physicsB = other->GetComponent<PhysicsComponent>();
+        transformA->Position = MathUtils::Add(transformA->Position, adjustment);
 
-    float combinedMass = physicsA->Mass + physicsB->Mass;
-    float force = physicsA->PushForce * (physicsA->Mass / combinedMass);
+    }
+    else {
+        std::cout << "3" << std::endl;
 
-    // SDL_FPoint pushForce = Multiply(direction, force);
-    SDL_FPoint pushForce = { direction.x * force, direction.y * force };
-
-    other->GetComponent<TransformComponent>()->Position =
-        MathUtils::Add(other->GetComponent<TransformComponent>()->Position, pushForce);
+        transformA->Position = MathUtils::Add(
+            transformA->Position,
+            MathUtils::Multiply(normal, penetration * 0.5f)
+        );
+        transformB->Position = MathUtils::Add(
+            transformB->Position,
+            MathUtils::Multiply(MathUtils::Negate(normal), penetration * 0.5f)
+        );
+    }
+    */
 }
 
 // Проверка столкновения

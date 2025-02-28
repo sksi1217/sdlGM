@@ -46,21 +46,22 @@ void Player::Update(float deltaTime) {
 	auto collider = GetComponent<ColliderComponent>();
 	auto transform = GetComponent<TransformComponent>();
 	auto movement = GetComponent<MovementComponent>();
+	auto physics = GetComponent<PhysicsComponent>();
 
 	if (!transform || !movement) return;
 
-	transform->Velocity = { 0.0f, 0.0f };
+	physics->Velocity = { 0.0f, 0.0f };
 	
 	const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
 
-	HandleMovement(keyboardState, transform->Velocity, deltaTime);
+	HandleMovement(keyboardState, physics->Velocity, deltaTime);
 
-	transform->Position.x += transform->Velocity.x * movement->Speed * deltaTime;
-	transform->Position.y += transform->Velocity.y * movement->Speed * deltaTime;
+	transform->Position.x += physics->Velocity.x * movement->Speed * deltaTime;
+	transform->Position.y += physics->Velocity.y * movement->Speed * deltaTime;
 
 	collider->UpdatePosition(transform->Position);
 
-	bool isMoving = (transform->Velocity.x != 0.0f || transform->Velocity.y != 0.0f);
+	bool isMoving = (physics->Velocity.x != 0.0f || physics->Velocity.y != 0.0f);
 	animationComponent->animation->Update(isMoving, static_cast<Uint32>(deltaTime * 1000.0f));
 
 }

@@ -38,9 +38,9 @@ public:
 
     bool CheckCollision(GameObject* other);
     void ResolveCollision(GameObject* other);
+
 private:
     void ApplyRepulsion(GameObject* other, const SDL_FPoint& direction);
-    void ApplyImpulse(GameObject* other, const SDL_FPoint& direction);
 };
 
 #endif // GAME_OBJECT_H

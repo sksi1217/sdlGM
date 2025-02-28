@@ -34,3 +34,12 @@ SDL_FPoint MathUtils::Add(const SDL_FPoint& a, const SDL_FPoint& b) {
 float MathUtils::Distance(const SDL_FPoint& a, const SDL_FPoint& b) {
     return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 }
+
+float MathUtils::Dot(const SDL_FPoint& a, const SDL_FPoint& b) {
+    return a.x * b.x + a.y * b.y;
+}
+
+// Функция для инверсии вектора
+SDL_FPoint MathUtils::Negate(const SDL_FPoint& vector) {
+    return { -vector.x, -vector.y };
+}
