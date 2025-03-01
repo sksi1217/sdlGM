@@ -15,6 +15,7 @@ std::shared_ptr<GameObject> player;
 std::shared_ptr<GameObject> enemy;
 std::shared_ptr<GameObject> enemy1;
 std::shared_ptr<GameObject> enemy2;
+std::shared_ptr<GameObject> enemy3;
 
 Camera camera = { {800, 600}, 5 };
 CollisionSystem сollisionSystem;
@@ -85,6 +86,7 @@ void Game::LoadContent() {
 	SDL_Texture* playerTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/player.png", renderer);
 	SDL_Texture* boxTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/box.png", renderer);
 
+
 	// Создание игрока
 	player = std::make_shared<Player>(SDL_FPoint{ 0, 40 }, playerTexture);
 	ManagerGame::entities.push_back(player);
@@ -92,11 +94,16 @@ void Game::LoadContent() {
 	enemy = std::make_shared<Skelet>(SDL_FPoint{ 0, 15 }, boxTexture);
 	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, boxTexture);
 	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 16, 0 }, boxTexture);
+	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 32, 0 }, boxTexture);
 
 
 	ManagerGame::entities.push_back(enemy);
 	ManagerGame::entities.push_back(enemy1);
 	ManagerGame::entities.push_back(enemy2);
+	ManagerGame::entities.push_back(enemy3);
+
+	
+
 }
 
 // Logic Update
@@ -106,7 +113,7 @@ void Game::Update(float deltaTime)
 		obj->Update(deltaTime);
 	}
 
-	сollisionSystem.Update();
+	сollisionSystem.Update(deltaTime);
 
 	camera.UpdateCamera(player->GetComponent<TransformComponent>()->Position, deltaTime);
 }

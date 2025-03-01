@@ -42,29 +42,42 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 }
 
 void Player::Update(float deltaTime) {
-	auto animationComponent = GetComponent<AnimationComponent>();
-	auto collider = GetComponent<ColliderComponent>();
-	auto transform = GetComponent<TransformComponent>();
-	auto movement = GetComponent<MovementComponent>();
-	auto physics = GetComponent<PhysicsComponent>();
+    auto animationComponent = GetComponent<AnimationComponent>();
+    auto collider = GetComponent<ColliderComponent>();
+    auto transform = GetComponent<TransformComponent>();
+    auto movement = GetComponent<MovementComponent>();
+    auto physics = GetComponent<PhysicsComponent>();
 
-	if (!transform || !movement) return;
+    if (!transform || !movement || !physics) return;
 
-	physics->Velocity = { 0.0f, 0.0f };
-	
-	const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
+    // Сброс начальной скорости
+    physics->Velocity = { 0.0f, 0.0f };
 
-	HandleMovement(keyboardState, physics->Velocity, deltaTime);
+    // Обработка ввода с клавиатуры
+    const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
+    HandleMovement(keyboardState, physics->Velocity, deltaTime);
 
-	transform->Position.x += physics->Velocity.x * movement->Speed * deltaTime;
-	transform->Position.y += physics->Velocity.y * movement->Speed * deltaTime;
+    // Обновление скорости с учетом силы и трения
+    physics->Velocity = MathUtils::Add(physics->Velocity, physics->Acceleration);
+    physics->Velocity = MathUtils::Multiply(physics->Velocity, physics->Drag);
 
-	collider->UpdatePosition(transform->Position);
+    // Обновление позиции с учетом времени
+    transform->Position = MathUtils::Add(transform->Position,
+        MathUtils::Multiply(physics->Velocity, movement->Speed * deltaTime));
 
-	bool isMoving = (physics->Velocity.x != 0.0f || physics->Velocity.y != 0.0f);
-	animationComponent->animation->Update(isMoving, static_cast<Uint32>(deltaTime * 1000.0f));
+    // Обнуляем ускорение для следующего кадра
+    physics->Acceleration = { 0, 0 };
 
+    // Обновление коллайдера
+    if (collider) collider->UpdatePosition(transform->Position);
+
+    // Обновление анимации
+    bool isMoving = (physics->Velocity.x != 0.0f || physics->Velocity.y != 0.0f);
+    if (animationComponent && animationComponent->animation) {
+        animationComponent->animation->Update(isMoving, static_cast<Uint32>(deltaTime * 1000.0f));
+    }
 }
+
 
 // Обработка движения
 void Player::HandleMovement(const Uint8* keyboardState, SDL_FPoint& velocity, float deltaTime) {

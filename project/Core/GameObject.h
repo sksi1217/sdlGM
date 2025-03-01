@@ -40,6 +40,8 @@ public:
     void ResolveCollision(GameObject* other);
 
 private:
+    float epsilon = 0.1f;
+
     void ApplyRepulsion(GameObject* other, const SDL_FPoint& direction);
 };
 
