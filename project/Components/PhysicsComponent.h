@@ -10,4 +10,5 @@ public:
     float Drag = 0.98f; // Коэффициент трения
     float Mass = 1.0f;
     float PushForce = 1.0f; // Сила отталкивания
+    bool IsStatic = false;              // Статичность
 };

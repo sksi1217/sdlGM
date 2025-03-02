@@ -85,30 +85,36 @@ void Game::LoadContent() {
 
 	SDL_Texture* playerTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/player.png", renderer);
 	SDL_Texture* boxTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/box.png", renderer);
+	SDL_Texture* enemyTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/enemy.png", renderer);
 
 
 	// Создание игрока
 	player = std::make_shared<Player>(SDL_FPoint{ 0, 40 }, playerTexture);
 	ManagerGame::objects.push_back(player);
 
-	enemy = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, boxTexture);
-	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, boxTexture);
-	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 16, 0 }, boxTexture);
-	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 32, 0 }, boxTexture);
+	enemy = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, enemyTexture);
+	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 16, 16 }, enemyTexture);
+	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 0, 32 }, enemyTexture);
+	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, enemyTexture);
+
+
+
+	// enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, enemyTexture);
+	// enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 17, 0 }, enemyTexture);
+	// enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 35, 0 }, enemyTexture);
 
 
 	ManagerGame::objects.push_back(enemy);
 	ManagerGame::objects.push_back(enemy1);
 	ManagerGame::objects.push_back(enemy2);
 	ManagerGame::objects.push_back(enemy3);
-
-	
-
 }
 
 // Logic Update
 void Game::Update(float deltaTime) 
 {
+	
+
 	for (auto& obj : ManagerGame::objects) {
 		obj->Update(deltaTime);
 	}

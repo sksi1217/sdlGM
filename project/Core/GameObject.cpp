@@ -21,8 +21,6 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
     auto render = GetComponent<RenderComponent>();
     auto animationComponent = GetComponent<AnimationComponent>();
     auto state = GetComponent<StateComponent>();
-    // auto collider = GetComponent<ColliderComponent>();
-
 
     // Проверяем, что все необходимые компоненты существуют
     if (!transform || !render || !render->IsVisible || !render->Texture) return;
@@ -106,5 +104,5 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
         int screenY = static_cast<int>((y - camera.GetPosition().y) * cameraScale); // Преобразуем мировые координаты в экранные
         SDL_RenderDrawLine(renderer, 0, screenY, 800, screenY); // Рисуем линию по всей ширине экрана
     }
-    
+  
 }

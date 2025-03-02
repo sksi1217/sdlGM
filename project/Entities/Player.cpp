@@ -10,6 +10,7 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 
 	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
+	movement->Speed = 50;
 	AddComponent(movement);
 
 	// StateComponent: Активность и коллизии
@@ -36,7 +37,7 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	auto collider = std::make_shared<ColliderComponent>();
 	collider->OffsetColliderX = 6; // Смещение коллайдера по X
 	collider->OffsetColliderY = 11; // Смещение коллайдера по Y
-	collider->WidthColliderX = 4;  // Ширина коллайдера
+	collider->WidthColliderX = 5;  // Ширина коллайдера
 	collider->HeightColliderY = 5; // Высота коллайдера
 	AddComponent(collider);
 }

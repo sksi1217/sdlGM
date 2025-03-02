@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <vector>
 #include <memory>
+#include <iostream>
 #include "../Core/GameObject.h"
 #include "../Resources/ManagerGame.h"
 
@@ -27,7 +28,6 @@ public:
             auto& obj = ManagerGame::objects[i]; // Берем ссылку на объект
 
             auto colliderObj = obj->GetComponent<ColliderComponent>();
-            // auto colliderB = objB->GetComponent<ColliderComponent>();
 
             int minX = colliderObj->Collider.x / cellSize;
             int maxX = (colliderObj->Collider.x + colliderObj->Collider.w - 1) / cellSize;
@@ -48,46 +48,74 @@ public:
     // Решение коллизии
     void ResolveCollision(GameObject* objA, GameObject* objB) {
         auto transformA = objA->GetComponent<TransformComponent>();
-        auto transformB = objB->GetComponent<TransformComponent>();
-
         auto colliderA = objA->GetComponent<ColliderComponent>();
-        auto colliderB = objB->GetComponent<ColliderComponent>();
-
         auto physicsA = objA->GetComponent<PhysicsComponent>();
+
+        auto transformB = objB->GetComponent<TransformComponent>();
+        auto colliderB = objB->GetComponent<ColliderComponent>();
         auto physicsB = objB->GetComponent<PhysicsComponent>();
 
-        int overlapX = 0;
-        int overlapY = 0;
+        if (!transformA || !colliderA || !transformB || !colliderB) return;
 
-        overlapX = std::min(colliderA->Collider.x + colliderA->Collider.w - colliderB->Collider.x, colliderB->Collider.x + colliderB->Collider.w - colliderA->Collider.x);
-        overlapY = std::min(colliderA->Collider.y + colliderA->Collider.h - colliderB->Collider.y, colliderB->Collider.y + colliderB->Collider.h - colliderA->Collider.y);
+        int overlapX = std::min(
+            colliderA->Collider.x + colliderA->Collider.w - colliderB->Collider.x,
+            colliderB->Collider.x + colliderB->Collider.w - colliderA->Collider.x
+        );
 
-        if (overlapX < overlapY) {
-            if (colliderA->Collider.x < colliderB->Collider.x) {
-                colliderA->Collider.x -= overlapX; // Коллизия слева
-                transformA->Position.x = colliderA->Collider.x - colliderA->OffsetColliderX;
+        int overlapY = std::min(
+            colliderA->Collider.y + colliderA->Collider.h - colliderB->Collider.y,
+            colliderB->Collider.y + colliderB->Collider.h - colliderA->Collider.y
+        );
+
+        if (!physicsB || physicsB->IsStatic) {
+            // Корректируем только objA
+            if (overlapX < overlapY) {
+                if (colliderA->Collider.x < colliderB->Collider.x) {
+                    transformA->Position.x -= overlapX;
+                }
+                else {
+                    transformA->Position.x += overlapX;
+                }
             }
-            else {
-                colliderA->Collider.x += overlapX; // Коллизия справа
-                transformA->Position.x = colliderA->Collider.x - colliderA->OffsetColliderX;
+            else if (overlapX > overlapY) {
+                if (colliderA->Collider.y < colliderB->Collider.y) {
+                    transformA->Position.y -= overlapY;
+                }
+                else {
+                    transformA->Position.y += overlapY;
+                }
             }
         }
-        else if (overlapX > overlapY) {
-            if (colliderA->Collider.y < colliderB->Collider.y) {
-                colliderA->Collider.y -= overlapY; // Коллизия сверху
-                transformA->Position.y = colliderA->Collider.y - colliderA->OffsetColliderY;
+        else {
+            // Если objB не неподвижен, корректируем позиции обоих объектов
+            if (overlapX < overlapY) {
+                if (colliderA->Collider.x < colliderB->Collider.x) {
+                    transformA->Position.x -= overlapX / 2;
+                    transformB->Position.x += overlapX / 2;
+                }
+                else {
+                    transformA->Position.x += overlapX / 2;
+                    transformB->Position.x -= overlapX / 2;
+                }
             }
-            else {
-                colliderA->Collider.y += overlapY; // Коллизия снизу
-                transformA->Position.y = colliderA->Collider.y - colliderA->OffsetColliderY;
+            else if (overlapX > overlapY) {
+                if (colliderA->Collider.y < colliderB->Collider.y) {
+                    transformA->Position.y -= overlapY / 2;
+                    transformB->Position.y += overlapY / 2;
+                }
+                else {
+                    transformA->Position.y += overlapY / 2;
+                    transformB->Position.y -= overlapY / 2;
+                }
             }
         }
 
-        // Корректируем позицию объекта A
-        
-        
+        // Обнуляем скорость для предотвращения повторных столкновений
+        if (physicsA) physicsA->Velocity = { 0.0f, 0.0f };
+        if (physicsB) physicsB->Velocity = { 0.0f, 0.0f };
 
-        physicsB->Velocity.x = -physicsB->Velocity.x;
-        physicsB->Velocity.y = -physicsB->Velocity.y;
+        // Обновляем коллайдеры после изменения позиций
+        colliderA->UpdatePosition(transformA->Position);
+        colliderB->UpdatePosition(transformB->Position);
     }
 };

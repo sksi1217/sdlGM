@@ -7,5 +7,4 @@ class StateComponent : public Component {
 public:
     bool IsActive = true;               // Активность
     bool IsCollidable = true;           // Возможность коллизий
-    bool IsStatic = false;              // Статичность
 };
