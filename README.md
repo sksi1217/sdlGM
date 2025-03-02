@@ -1,5 +1,9 @@
 # sdl2
 
+
+Алгоритм Брезенхэма использую для рисования круга:
+https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+
 Примерная структкра проекта:
 ```
 project/
