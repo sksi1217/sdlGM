@@ -6,86 +6,22 @@
 // Обновление объекта
 void GameObject::Update(float deltaTime) {
     auto transform = GetComponent<TransformComponent>();
-    auto physics = GetComponent<PhysicsComponent>();
-
-    if (!transform || !physics) return;
-
-    // Обновляем скорость с учетом силы и трения
-    physics->Velocity = MathUtils::Add(physics->Velocity, physics->Acceleration);
-    physics->Velocity = MathUtils::Multiply(physics->Velocity, physics->Drag);
-
-    // Обновляем позицию с учетом времени
-    transform->Position = MathUtils::Add(transform->Position,
-        MathUtils::Multiply(physics->Velocity, deltaTime));
-
-    // Обнуляем ускорение для следующего кадра
-    physics->Acceleration = { 0, 0 };
+    if (!transform) return;
 
     // Обновляем коллайдер
     auto collider = GetComponent<ColliderComponent>();
     if (collider) collider->UpdatePosition(transform->Position);
 }
 
-// Проверка столкновения
-bool GameObject::CheckCollision(GameObject* other) {
-    auto colliderA = GetComponent<ColliderComponent>();
-    auto colliderB = other->GetComponent<ColliderComponent>();
-
-    // auto stateA = GetComponent<StateComponent>();
-    // auto stateB = other->GetComponent<StateComponent>();
-
-    if (!colliderA || !colliderB) return false;
-    // if (!stateA->IsCollidable || !stateB->IsCollidable) return false;
-
-    return colliderA->CheckCollision(*colliderB);
-}
-
-// Решение коллизии
-void GameObject::ResolveCollision(GameObject* other) {
-    auto transformA = GetComponent<TransformComponent>();
-    auto transformB = other->GetComponent<TransformComponent>();
-
-    auto physicsA = GetComponent<PhysicsComponent>();
-    auto physicsB = other->GetComponent<PhysicsComponent>();
-
-    auto colliderA = GetComponent<ColliderComponent>();
-    auto colliderB = other->GetComponent<ColliderComponent>();
-
-    auto stateA = GetComponent<StateComponent>();
-    auto stateB = other->GetComponent<StateComponent>();
-
-    if (!transformA || !transformB || !physicsA || !physicsB || !colliderA || !colliderB) return;
-
-    // Получаем глубину пересечения
-    SDL_FPoint intersectionDepth = colliderA->GetIntersectionDepth(*colliderB);
-
-    // Если есть пересечение, исправляем позицию объекта
-    if (intersectionDepth.x != 0 || intersectionDepth.y != 0) {
-        // Исправляем позицию A
-        transformA->Position.x += intersectionDepth.x;
-        transformA->Position.y += intersectionDepth.y;
-
-        // Обновляем коллайдер после изменения позиции
-        colliderA->UpdatePosition(transformA->Position);
-
-        /* Останавливаем движение в направлении пересечения
-        if (intersectionDepth.x != 0) {
-            physicsA->Velocity.x = 0; // Остановка по оси X
-        }
-        if (intersectionDepth.y != 0) {
-            physicsA->Velocity.y = 0; // Остановка по оси Y
-        }
-        */
-    }
-}
 // Object rendering
 void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
     // Получаем компоненты
     auto transform = GetComponent<TransformComponent>();
+    auto collider = GetComponent<ColliderComponent>();
     auto render = GetComponent<RenderComponent>();
     auto animationComponent = GetComponent<AnimationComponent>();
     auto state = GetComponent<StateComponent>();
-    auto collider = GetComponent<ColliderComponent>();
+    // auto collider = GetComponent<ColliderComponent>();
 
 
     // Проверяем, что все необходимые компоненты существуют
@@ -105,8 +41,8 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
     SDL_FRect destRect = {
         (transform->Position.x - camera.GetPosition().x) * cameraScale - transform->Origin.x * transform->Scale * cameraScale,
         (transform->Position.y - camera.GetPosition().y) * cameraScale - transform->Origin.y * transform->Scale * cameraScale,
-        static_cast<float>(frameWidth * transform->Scale * cameraScale),
-        static_cast<float>(frameHeight * transform->Scale * cameraScale)
+        static_cast<int>(frameWidth * transform->Scale * cameraScale),
+        static_cast<int>(frameHeight * transform->Scale * cameraScale)
     };
 
     // Reflection flags
@@ -133,6 +69,7 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
     }
 
 
+    // Отрисовка Коллайдера
     if (state->IsCollidable) {
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_Rect colliderRect = {
@@ -143,4 +80,31 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
         };
         SDL_RenderDrawRect(renderer, &colliderRect);
     }
+
+    // Отрисовка сетки с учетом камеры
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Зеленый цвет для сетки
+
+    int cellSize = 32; // Размер одной ячейки сетки в мире (до масштабирования)
+    int scaledCellSize = static_cast<int>(cellSize * cameraScale); // Масштабируем размер ячейки
+
+    // Получаем видимую область камеры в мире
+    int visibleWidth = static_cast<int>(800 / cameraScale); // Ширина области в пикселях мира
+    int visibleHeight = static_cast<int>(600 / cameraScale); // Высота области в пикселях мира
+
+    // Начальные координаты сетки в мире
+    int startX = static_cast<int>(camera.GetPosition().x / cellSize) * cellSize; // Ближайшая левая граница сетки
+    int startY = static_cast<int>(camera.GetPosition().y / cellSize) * cellSize; // Ближайшая верхняя граница сетки
+
+    // Отрисовка вертикальных линий
+    for (int x = startX; x < startX + visibleWidth; x += cellSize) {
+        int screenX = static_cast<int>((x - camera.GetPosition().x) * cameraScale); // Преобразуем мировые координаты в экранные
+        SDL_RenderDrawLine(renderer, screenX, 0, screenX, 600); // Рисуем линию по всей высоте экрана
+    }
+
+    // Отрисовка горизонтальных линий
+    for (int y = startY; y < startY + visibleHeight; y += cellSize) {
+        int screenY = static_cast<int>((y - camera.GetPosition().y) * cameraScale); // Преобразуем мировые координаты в экранные
+        SDL_RenderDrawLine(renderer, 0, screenY, 800, screenY); // Рисуем линию по всей ширине экрана
+    }
+    
 }

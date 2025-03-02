@@ -12,8 +12,8 @@ public:
 
     // Обновление позиции коллайдера
     void UpdatePosition(const SDL_FPoint& position) {
-        Collider.x = static_cast<int>(position.x + OffsetColliderX);
-        Collider.y = static_cast<int>(position.y + OffsetColliderY);
+        Collider.x = position.x + OffsetColliderX;
+        Collider.y = position.y + OffsetColliderY;
         Collider.w = WidthColliderX;
         Collider.h = HeightColliderY;
     }

@@ -89,18 +89,18 @@ void Game::LoadContent() {
 
 	// Создание игрока
 	player = std::make_shared<Player>(SDL_FPoint{ 0, 40 }, playerTexture);
-	ManagerGame::entities.push_back(player);
+	ManagerGame::objects.push_back(player);
 
-	enemy = std::make_shared<Skelet>(SDL_FPoint{ 0, 15 }, boxTexture);
+	enemy = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, boxTexture);
 	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, boxTexture);
 	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 16, 0 }, boxTexture);
 	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 32, 0 }, boxTexture);
 
 
-	ManagerGame::entities.push_back(enemy);
-	ManagerGame::entities.push_back(enemy1);
-	ManagerGame::entities.push_back(enemy2);
-	ManagerGame::entities.push_back(enemy3);
+	ManagerGame::objects.push_back(enemy);
+	ManagerGame::objects.push_back(enemy1);
+	ManagerGame::objects.push_back(enemy2);
+	ManagerGame::objects.push_back(enemy3);
 
 	
 
@@ -109,11 +109,11 @@ void Game::LoadContent() {
 // Logic Update
 void Game::Update(float deltaTime) 
 {
-	for (auto& obj : ManagerGame::entities) {
+	for (auto& obj : ManagerGame::objects) {
 		obj->Update(deltaTime);
 	}
 
-	сollisionSystem.Update(deltaTime);
+	сollisionSystem.Update();
 
 	camera.UpdateCamera(player->GetComponent<TransformComponent>()->Position, deltaTime);
 }
@@ -124,7 +124,7 @@ void Game::Draw() {
 	SDL_RenderClear(renderer);
 
 	// Drawing of all objects
-	for (auto& obj : ManagerGame::entities) {
+	for (auto& obj : ManagerGame::objects) {
 		obj->Draw(renderer, camera);
 	}
 
