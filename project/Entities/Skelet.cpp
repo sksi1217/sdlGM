@@ -37,18 +37,18 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 
 	// ColliderComponent
 	auto collider = std::make_shared<ColliderComponent>();
-	collider->OffsetColliderX = 6; // Смещение коллайдера по X
-	collider->OffsetColliderY = 12; // Смещение коллайдера по Y
-	collider->WidthColliderX = 6;  // Ширина коллайдера
-	collider->HeightColliderY = 6; // Высота коллайдера
+	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
+	collider->OffsetColliderX = 8; // Смещение коллайдера по X
+	collider->OffsetColliderY = 14; // Смещение коллайдера по Y
+	collider->CircleRadius = 2; // Радиус круга
 	AddComponent(collider);
 }
 
 void Skelet::Update(float deltaTime) {
 	auto animationComponent = GetComponent<AnimationComponent>();
 	auto transform = GetComponent<TransformComponent>();
-	/*
-
+	auto collider = GetComponent<ColliderComponent>();
+	
 	direction = { targetPosition.x - transform->Position.x, targetPosition.y - transform->Position.y };
 	direction = MathUtils::Normalize(direction);
 
@@ -56,21 +56,30 @@ void Skelet::Update(float deltaTime) {
 	else animationComponent->SpriteRow = (direction.y > 0 ? DownRow : UpRow);
 
 	HandleMovement(deltaTime);
+	
+
+	// Обновление коллайдера
+	// if (collider) collider->UpdatePosition(transform->Position);
 
 	bool isMoving = (direction.x != 0.0f || direction.y != 0.0f);
 	if (animationComponent && animationComponent->animation) animationComponent->animation->Update(isMoving, static_cast<Uint32>(deltaTime * 1000.0f));
-	*/
 }
 
 void Skelet::HandleMovement(float deltaTime) {
 	auto movement = GetComponent<MovementComponent>();
 	auto transform = GetComponent<TransformComponent>();
+	auto physics = GetComponent<PhysicsComponent>();
 	auto collider = GetComponent<ColliderComponent>();
 
-	if (!transform || !movement	) return;
+	if (!transform || !movement || !physics) return;
 
-	transform->Position.x += direction.x * movement->Speed * deltaTime;
-	transform->Position.y += direction.y * movement->Speed * deltaTime;
+	// Обновление Velocity на основе направления движения
+	physics->Velocity.x = direction.x * movement->Speed;
+	physics->Velocity.y = direction.y * movement->Speed;
+
+	// Применение Velocity к позиции объекта
+	transform->Position.x += physics->Velocity.x * deltaTime;
+	transform->Position.y += physics->Velocity.y * deltaTime;
 
 	// Обновление коллайдера
 	if (collider) collider->UpdatePosition(transform->Position);

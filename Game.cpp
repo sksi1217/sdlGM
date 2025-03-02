@@ -113,8 +113,6 @@ void Game::LoadContent() {
 // Logic Update
 void Game::Update(float deltaTime) 
 {
-	
-
 	for (auto& obj : ManagerGame::objects) {
 		obj->Update(deltaTime);
 	}

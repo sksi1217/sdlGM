@@ -35,10 +35,10 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 
 	// ColliderComponent
 	auto collider = std::make_shared<ColliderComponent>();
-	collider->OffsetColliderX = 6; // Смещение коллайдера по X
-	collider->OffsetColliderY = 12; // Смещение коллайдера по Y
-	collider->WidthColliderX = 6;  // Ширина коллайдера
-	collider->HeightColliderY = 6; // Высота коллайдера
+	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
+	collider->OffsetColliderX = 8; // Смещение коллайдера по X
+	collider->OffsetColliderY = 14; // Смещение коллайдера по Y
+	collider->CircleRadius = 2; // Радиус круга
 	AddComponent(collider);
 }
 
@@ -58,16 +58,9 @@ void Player::Update(float deltaTime) {
     const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
     HandleMovement(keyboardState, physics->Velocity, deltaTime);
 
-    // Обновление скорости с учетом силы и трения
-    physics->Velocity = MathUtils::Add(physics->Velocity, physics->Acceleration);
-    physics->Velocity = MathUtils::Multiply(physics->Velocity, physics->Drag);
-
     // Обновление позиции с учетом времени
     transform->Position = MathUtils::Add(transform->Position,
-        MathUtils::Multiply(physics->Velocity, movement->Speed * deltaTime));
-
-    // Обнуляем ускорение для следующего кадра
-    physics->Acceleration = { 0, 0 };
+        MathUtils::Multiply(physics->Velocity, movement->Speed * deltaTime));;
 
     // Обновление коллайдера
     if (collider) collider->UpdatePosition(transform->Position);

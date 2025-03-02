@@ -17,8 +17,8 @@ public:
     void Update(float deltaTime) override;
 
 private:
-    SDL_FPoint direction;
-    SDL_FPoint targetPosition = { 100, 100 };
+    SDL_FPoint direction ;
+    SDL_FPoint targetPosition = { 1000, 1000 };
 
     void HandleMovement(float deltaTime);
 

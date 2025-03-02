@@ -69,15 +69,27 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
 
 
     // Отрисовка Коллайдера
-    if (state->IsCollidable) {
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        SDL_Rect colliderRect = {
-            ((collider->Collider.x - camera.GetPosition().x) * cameraScale),
-            ((collider->Collider.y - camera.GetPosition().y) * cameraScale),
-            (collider->Collider.w * cameraScale),
-            (collider->Collider.h * cameraScale)
-        };
-        SDL_RenderDrawRect(renderer, &colliderRect);
+    if (state->IsCollidable && collider) {
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Зеленый цвет для коллайдера
+
+        if (collider->Type == ColliderComponent::ColliderType::RECTANGLE) {
+            // Отрисовка прямоугольного коллайдера
+            SDL_Rect colliderRect = {
+                ((collider->Collider.x - camera.GetPosition().x) * cameraScale),
+                ((collider->Collider.y - camera.GetPosition().y) * cameraScale),
+                (collider->Collider.w * cameraScale),
+                (collider->Collider.h * cameraScale)
+            };
+            SDL_RenderDrawRect(renderer, &colliderRect);
+        }
+        else if (collider->Type == ColliderComponent::ColliderType::CIRCLE) {
+            // Отрисовка кругового коллайдера
+            int centerX = collider->CircleCollider.x;
+            int centerY = collider->CircleCollider.y;
+            int radius = collider->CircleRadius;
+
+            RenderCircle(renderer, centerX, centerY, radius, cameraScale, camera);
+        }
     }
 
     // Отрисовка сетки с учетом камеры
