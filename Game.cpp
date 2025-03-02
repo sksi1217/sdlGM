@@ -94,7 +94,7 @@ void Game::LoadContent() {
 
 	enemy = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, enemyTexture);
 	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 16, 16 }, enemyTexture);
-	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 0, 32 }, enemyTexture);
+	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 60, 80 }, enemyTexture);
 	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, enemyTexture);
 
 

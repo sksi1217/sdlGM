@@ -34,13 +34,14 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
     int frameHeight = animationComponent ? animationComponent->animation->FrameHeight : textureHeight;
 
     float cameraScale = camera.GetScale(); // Get the camera scale
+    if (cameraScale <= 0) cameraScale = 1.0f; // Защита от деления на ноль
 
     // Create a rectangle for floating point drawing
     SDL_FRect destRect = {
         (transform->Position.x - camera.GetPosition().x) * cameraScale - transform->Origin.x * transform->Scale * cameraScale,
         (transform->Position.y - camera.GetPosition().y) * cameraScale - transform->Origin.y * transform->Scale * cameraScale,
-        static_cast<int>(frameWidth * transform->Scale * cameraScale),
-        static_cast<int>(frameHeight * transform->Scale * cameraScale)
+        static_cast<float>(frameWidth * transform->Scale * cameraScale),
+        static_cast<float>(frameHeight * transform->Scale * cameraScale)
     };
 
     // Reflection flags

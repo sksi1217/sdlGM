@@ -36,9 +36,9 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	// ColliderComponent
 	auto collider = std::make_shared<ColliderComponent>();
 	collider->OffsetColliderX = 6; // Смещение коллайдера по X
-	collider->OffsetColliderY = 11; // Смещение коллайдера по Y
-	collider->WidthColliderX = 5;  // Ширина коллайдера
-	collider->HeightColliderY = 5; // Высота коллайдера
+	collider->OffsetColliderY = 12; // Смещение коллайдера по Y
+	collider->WidthColliderX = 6;  // Ширина коллайдера
+	collider->HeightColliderY = 6; // Высота коллайдера
 	AddComponent(collider);
 }
 

@@ -67,13 +67,17 @@ public:
             colliderB->Collider.y + colliderB->Collider.h - colliderA->Collider.y
         );
 
+        // Убедитесь, что overlap не отрицательный
+        if (overlapX < 0) overlapX = 0;
+        if (overlapY < 0) overlapY = 0;
+
         if (!physicsB || physicsB->IsStatic) {
             // Корректируем только objA
             if (overlapX < overlapY) {
                 if (colliderA->Collider.x < colliderB->Collider.x) {
                     transformA->Position.x -= overlapX;
                 }
-                else {
+                else if (colliderA->Collider.x > colliderB->Collider.x) {
                     transformA->Position.x += overlapX;
                 }
             }
