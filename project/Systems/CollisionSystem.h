@@ -8,7 +8,36 @@
 
 class CollisionSystem {
 public:
+
+	// Генерация сетки для оптимизации коллизий
+	std::unordered_map<int, std::vector<GameObject*>> GenerateGrid(int cellSize, int width, int height);
+
 	void Update();
+
+#pragma region Check Collision
+	bool CheckRectRectCollision(ColliderComponent* a, ColliderComponent* b) {
+		return (a->Collider.x < b->Collider.x + b->Collider.w &&
+			a->Collider.x + a->Collider.w > b->Collider.x &&
+			a->Collider.y < b->Collider.y + b->Collider.h &&
+			a->Collider.y + a->Collider.h > b->Collider.y);
+	}
+
+	bool CheckCircleCircleCollision(ColliderComponent* a, ColliderComponent* b) {
+		float dx = a->CircleCollider.x - b->CircleCollider.x;
+		float dy = a->CircleCollider.y - b->CircleCollider.y;
+		float distanceSquared = dx * dx + dy * dy;
+		float radiusSum = a->CircleRadius + b->CircleRadius;
+		return distanceSquared <= radiusSum * radiusSum;
+	}
+
+	
+	bool CheckRectCircleCollision(ColliderComponent* rect, ColliderComponent* circle) {
+		float closestX = std::clamp(circle->CircleCollider.x, static_cast<float>(rect->Collider.x), static_cast<float>(rect->Collider.x + rect->Collider.w));
+		float closestY = std::clamp(circle->CircleCollider.y, static_cast<float>(rect->Collider.y), static_cast<float>(rect->Collider.y + rect->Collider.h));
+		float dx = circle->CircleCollider.x - closestX;
+		float dy = circle->CircleCollider.y - closestY;
+		return (dx * dx + dy * dy) <= circle->CircleRadius * circle->CircleRadius;
+	}
 
 	bool CheckCollision(GameObject* objA, GameObject* objB) {
 		auto colliderA = objA->GetComponent<ColliderComponent>();
@@ -16,102 +45,18 @@ public:
 
 		if (!colliderA || !colliderB) return false;
 
-		switch (colliderA->Type) {
-		case ColliderComponent::ColliderType::RECTANGLE:
-			switch (colliderB->Type) {
-			case ColliderComponent::ColliderType::RECTANGLE:
-				// Прямоугольник-прямоугольник
-				return (colliderA->Collider.x < colliderB->Collider.x + colliderB->Collider.w &&
-					colliderA->Collider.x + colliderA->Collider.w > colliderB->Collider.x &&
-					colliderA->Collider.y < colliderB->Collider.y + colliderB->Collider.h &&
-					colliderA->Collider.y + colliderA->Collider.h > colliderB->Collider.y);
+		if (colliderA->Type == ColliderComponent::ColliderType::RECTANGLE && colliderB->Type == ColliderComponent::ColliderType::RECTANGLE)
+			return CheckRectRectCollision(colliderA.get(), colliderB.get());
+		if (colliderA->Type == ColliderComponent::ColliderType::RECTANGLE && colliderB->Type == ColliderComponent::ColliderType::CIRCLE)
+			return CheckRectCircleCollision(colliderA.get(), colliderB.get());
+		if (colliderA->Type == ColliderComponent::ColliderType::CIRCLE && colliderB->Type == ColliderComponent::ColliderType::RECTANGLE)
+			return CheckRectCircleCollision(colliderB.get(), colliderA.get());
+		if (colliderA->Type == ColliderComponent::ColliderType::CIRCLE && colliderB->Type == ColliderComponent::ColliderType::CIRCLE)
+			return CheckCircleCircleCollision(colliderA.get(), colliderB.get());
 
-			case ColliderComponent::ColliderType::CIRCLE:
-				// Прямоугольник-круг
-				return CheckRectCircleCollision(colliderA.get(), colliderB.get());
-
-			default:
-				return false;
-			}
-
-		case ColliderComponent::ColliderType::CIRCLE:
-			switch (colliderB->Type) {
-			case ColliderComponent::ColliderType::RECTANGLE:
-				// Круг-прямоугольник (симметричный случай)
-				return CheckRectCircleCollision(colliderB.get(), colliderA.get());
-
-			case ColliderComponent::ColliderType::CIRCLE:
-				// Круг-круг
-				{
-					float dx = colliderA->CircleCollider.x - colliderB->CircleCollider.x;
-					float dy = colliderA->CircleCollider.y - colliderB->CircleCollider.y;
-					float distanceSquared = dx * dx + dy * dy;
-					float radiusSum = colliderA->CircleRadius + colliderB->CircleRadius;
-					return distanceSquared <= radiusSum * radiusSum;
-				}
-			default:
-				return false;
-			}
-
-		default:
-			return false;
-		}
+		return false;
 	}
-
-	// Общая функция для проверки столкновения прямоугольника и круга
-	bool CheckRectCircleCollision(ColliderComponent* rectCollider, ColliderComponent* circleCollider) {
-		float closestX = std::clamp(circleCollider->CircleCollider.x, static_cast<float>(rectCollider->Collider.x), static_cast<float>(rectCollider->Collider.x + rectCollider->Collider.w));
-		float closestY = std::clamp(circleCollider->CircleCollider.y, static_cast<float>(rectCollider->Collider.y), static_cast<float>(rectCollider->Collider.y + rectCollider->Collider.h));
-		float dx = circleCollider->CircleCollider.x - closestX;
-		float dy = circleCollider->CircleCollider.y - closestY;
-		float distanceSquared = dx * dx + dy * dy;
-		return distanceSquared <= circleCollider->CircleRadius * circleCollider->CircleRadius;
-	}
-
-	// Генерация сетки для оптимизации коллизий
-	std::unordered_map<int, std::vector<GameObject*>> GenerateGrid(int cellSize, int width, int height) {
-		std::unordered_map<int, std::vector<GameObject*>> grid;
-
-		for (size_t i = 0; i < ManagerGame::objects.size(); ++i) {
-			auto& obj = ManagerGame::objects[i];
-			auto colliderObj = obj->GetComponent<ColliderComponent>();
-
-			// if (!colliderObj || !obj->IsActive()) continue;
-
-			int left, right, top, bottom;
-
-			if (colliderObj->Type == ColliderComponent::ColliderType::RECTANGLE) {
-				left = colliderObj->Collider.x;
-				right = colliderObj->Collider.x + colliderObj->Collider.w;
-				top = colliderObj->Collider.y;
-				bottom = colliderObj->Collider.y + colliderObj->Collider.h;
-			}
-			else if (colliderObj->Type == ColliderComponent::ColliderType::CIRCLE) {
-				left = colliderObj->CircleCollider.x - colliderObj->CircleRadius;
-				right = colliderObj->CircleCollider.x + colliderObj->CircleRadius;
-				top = colliderObj->CircleCollider.y - colliderObj->CircleRadius;
-				bottom = colliderObj->CircleCollider.y + colliderObj->CircleRadius;
-			}
-			else {
-				std::cout << "Nothing!" << std::endl;
-				continue; // Неизвестный тип коллайдера
-			}
-
-			int minX = std::max(0, left / cellSize);
-			int maxX = std::min((width / cellSize) - 1, (right - 1) / cellSize);
-			int minY = std::max(0, top / cellSize);
-			int maxY = std::min((height / cellSize) - 1, (bottom - 1) / cellSize);
-
-			for (int y = minY; y <= maxY; ++y) {
-				for (int x = minX; x <= maxX; ++x) {
-					int cellIndex = y * (width / cellSize) + x;
-					grid[cellIndex].push_back(obj.get());
-				}
-			}
-		}
-
-		return grid;
-	}
+#pragma endregion
 
 	// Решение коллизии
 	void ResolveCollision(GameObject* objA, GameObject* objB) {
@@ -161,7 +106,12 @@ public:
 		}
 	}
 
-	// Разрешение коллизии прямоугольник-прямоугольник
+	// Разрешение коллизии круг-прямоугольник
+	void ResolveCircleRectCollision(GameObject* circleObj, GameObject* rectObj) {
+		ResolveRectCircleCollision(rectObj, circleObj); // Симметричный случай
+	}
+
+	// Разрешение коллизии прямоугольник-прямоугольник с учетом статических объектов
 	void ResolveRectRectCollision(GameObject* objA, GameObject* objB) {
 		auto transformA = objA->GetComponent<TransformComponent>();
 		auto colliderA = objA->GetComponent<ColliderComponent>();
@@ -171,6 +121,9 @@ public:
 		auto colliderB = objB->GetComponent<ColliderComponent>();
 		auto physicsB = objB->GetComponent<PhysicsComponent>();
 
+		if (!transformA || !colliderA || !physicsA || !transformB || !colliderB || !physicsB) return;
+
+		// Вычисляем перекрытие по осям X и Y
 		int overlapX = std::min(
 			colliderA->Collider.x + colliderA->Collider.w - colliderB->Collider.x,
 			colliderB->Collider.x + colliderB->Collider.w - colliderA->Collider.x
@@ -182,31 +135,34 @@ public:
 		);
 
 		if (overlapX < overlapY) {
+			// Перекрытие больше по оси X
 			if (colliderA->Collider.x < colliderB->Collider.x) {
-				transformA->Position.x -= overlapX / 2;
-				transformB->Position.x += overlapX / 2;
+				if (!physicsA->IsStatic) transformA->Position.x -= overlapX;
+				if (!physicsB->IsStatic) transformB->Position.x += overlapX;
 			}
 			else {
-				transformA->Position.x += overlapX / 2;
-				transformB->Position.x -= overlapX / 2;
+				if (!physicsA->IsStatic) transformA->Position.x += overlapX;
+				if (!physicsB->IsStatic) transformB->Position.x -= overlapX;
 			}
 		}
 		else {
+			// Перекрытие больше по оси Y
 			if (colliderA->Collider.y < colliderB->Collider.y) {
-				transformA->Position.y -= overlapY / 2;
-				transformB->Position.y += overlapY / 2;
+				if (!physicsA->IsStatic) transformA->Position.y -= overlapY;
+				if (!physicsB->IsStatic) transformB->Position.y += overlapY;
 			}
 			else {
-				transformA->Position.y += overlapY / 2;
-				transformB->Position.y -= overlapY / 2;
+				if (!physicsA->IsStatic) transformA->Position.y += overlapY;
+				if (!physicsB->IsStatic) transformB->Position.y -= overlapY;
 			}
 		}
 
+		// Обновляем позиции коллайдеров
 		colliderA->UpdatePosition(transformA->Position);
 		colliderB->UpdatePosition(transformB->Position);
 	}
 
-	// Разрешение коллизии прямоугольник-круг
+	// Разрешение коллизии прямоугольник-круг с учетом статических объектов
 	void ResolveRectCircleCollision(GameObject* rectObj, GameObject* circleObj) {
 		auto transformRect = rectObj->GetComponent<TransformComponent>();
 		auto colliderRect = rectObj->GetComponent<ColliderComponent>();
@@ -216,34 +172,62 @@ public:
 		auto colliderCircle = circleObj->GetComponent<ColliderComponent>();
 		auto physicsCircle = circleObj->GetComponent<PhysicsComponent>();
 
-		float closestX = std::clamp(colliderCircle->CircleCollider.x, static_cast<float>(colliderRect->Collider.x), static_cast<float>(colliderRect->Collider.x + colliderRect->Collider.w));
-		float closestY = std::clamp(colliderCircle->CircleCollider.y, static_cast<float>(colliderRect->Collider.y), static_cast<float>(colliderRect->Collider.y + colliderRect->Collider.h));
+		if (!transformRect || !colliderRect || !physicsRect || !transformCircle || !colliderCircle || !physicsCircle) return;
 
+		// Находим ближайшую точку на прямоугольнике к центру круга
+		float closestX = std::clamp(
+			colliderCircle->CircleCollider.x,
+			static_cast<float>(colliderRect->Collider.x),
+			static_cast<float>(colliderRect->Collider.x + colliderRect->Collider.w)
+		);
+		float closestY = std::clamp(
+			colliderCircle->CircleCollider.y,
+			static_cast<float>(colliderRect->Collider.y),
+			static_cast<float>(colliderRect->Collider.y + colliderRect->Collider.h)
+		);
+
+		// Вычисляем вектор между центром круга и ближайшей точкой
 		float dx = colliderCircle->CircleCollider.x - closestX;
 		float dy = colliderCircle->CircleCollider.y - closestY;
 
-		if (dx == 0 && dy == 0) return; // Круг внутри прямоугольника
+		if (dx == 0 && dy == 0) return; // Круг полностью внутри прямоугольника
 
+		// Вычисляем расстояние до ближайшей точки
 		float distance = std::sqrt(dx * dx + dy * dy);
 		float overlap = colliderCircle->CircleRadius - distance;
 
 		if (overlap > 0) {
+			// Нормализуем вектор направления
 			float nx = dx / distance;
 			float ny = dy / distance;
 
-			transformCircle->Position.x += nx * overlap;
-			transformCircle->Position.y += ny * overlap;
+			// Определяем, как двигать объекты
+			if (!physicsCircle->IsStatic && !physicsRect->IsStatic) {
+				// Оба объекта динамические, двигаем их на равные расстояния
+				transformCircle->Position.x += nx * overlap / 2;
+				transformCircle->Position.y += ny * overlap / 2;
 
+				transformRect->Position.x -= nx * overlap / 2;
+				transformRect->Position.y -= ny * overlap / 2;
+			}
+			else if (!physicsCircle->IsStatic && physicsRect->IsStatic) {
+				// Только круг динамический, двигаем только его
+				transformCircle->Position.x += nx * overlap;
+				transformCircle->Position.y += ny * overlap;
+			}
+			else if (physicsCircle->IsStatic && !physicsRect->IsStatic) {
+				// Только прямоугольник динамический, двигаем только его
+				transformRect->Position.x -= nx * overlap;
+				transformRect->Position.y -= ny * overlap;
+			}
+
+			// Обновляем позиции коллайдеров
 			colliderCircle->UpdatePosition(transformCircle->Position);
+			colliderRect->UpdatePosition(transformRect->Position);
 		}
 	}
 
-	// Разрешение коллизии круг-прямоугольник
-	void ResolveCircleRectCollision(GameObject* circleObj, GameObject* rectObj) {
-		ResolveRectCircleCollision(rectObj, circleObj); // Симметричный случай
-	}
-
-	// Разрешение коллизии круг-круг
+	// Разрешение коллизии круг-круг с учетом статических объектов
 	void ResolveCircleCircleCollision(GameObject* circleA, GameObject* circleB) {
 		auto transformA = circleA->GetComponent<TransformComponent>();
 		auto colliderA = circleA->GetComponent<ColliderComponent>();
@@ -253,25 +237,48 @@ public:
 		auto colliderB = circleB->GetComponent<ColliderComponent>();
 		auto physicsB = circleB->GetComponent<PhysicsComponent>();
 
+		if (!transformA || !colliderA || !physicsA || !transformB || !colliderB || !physicsB) return;
+
+		// Вычисляем вектор между центрами двух кругов
 		float dx = colliderB->CircleCollider.x - colliderA->CircleCollider.x;
 		float dy = colliderB->CircleCollider.y - colliderA->CircleCollider.y;
 
+		// Вычисляем расстояние между центрами
 		float distance = std::sqrt(dx * dx + dy * dy);
-		if (distance == 0) return; // Центры совпадают
+		if (distance == 0) return; // Центры совпадают, ничего не делаем
 
+		// Сумма радиусов для определения коллизии
 		float radiusSum = colliderA->CircleRadius + colliderB->CircleRadius;
-		if (distance < radiusSum) {
-			float overlap = radiusSum - distance;
 
+		// Проверяем, есть ли пересечение
+		if (distance < radiusSum) {
+			float overlap = radiusSum - distance; // Размер пересечения
+
+			// Нормализуем вектор между центрами
 			float nx = dx / distance;
 			float ny = dy / distance;
 
-			transformA->Position.x -= nx * overlap / 2;
-			transformB->Position.x += nx * overlap / 2;
+			// Определяем, как двигать объекты
+			if (!physicsA->IsStatic && !physicsB->IsStatic) {
+				// Оба объекта динамические, двигаем их на равные расстояния
+				transformA->Position.x -= nx * overlap / 2;
+				transformA->Position.y -= ny * overlap / 2;
 
-			transformA->Position.y -= ny * overlap / 2;
-			transformB->Position.y += ny * overlap / 2;
+				transformB->Position.x += nx * overlap / 2;
+				transformB->Position.y += ny * overlap / 2;
+			}
+			else if (!physicsA->IsStatic && physicsB->IsStatic) {
+				// Только первый объект динамический, двигаем только его
+				transformA->Position.x -= nx * overlap;
+				transformA->Position.y -= ny * overlap;
+			}
+			else if (physicsA->IsStatic && !physicsB->IsStatic) {
+				// Только второй объект динамический, двигаем только его
+				transformB->Position.x += nx * overlap;
+				transformB->Position.y += ny * overlap;
+			}
 
+			// Обновляем позиции коллайдеров
 			colliderA->UpdatePosition(transformA->Position);
 			colliderB->UpdatePosition(transformB->Position);
 		}
