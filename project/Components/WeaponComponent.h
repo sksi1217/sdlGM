@@ -15,7 +15,9 @@ public:
     int m_shellsToFire = 0; // Оставшееся количество пуль в текущем залпе
     bool im_isFiringZalp = false; // Флаг, указывающий, происходит ли залп
 
-    float m_lifetimeBullet = 5.0f; // Время жизни пули
+    float m_lifetimeBullet = 1.0f; // Время жизни пули
     float m_lastShotTime = 0.0f; // Время последнего выстрела
     float m_elapsedTime = 0.0f; // Время, прошедшее с последнего выстрела
+
+    SDL_FPoint m_direction = { 0, 0 };
 };

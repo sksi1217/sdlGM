@@ -4,6 +4,7 @@
 
 #include "../Utils/TextureLoader.h"
 #include "../Resources/ManagerGame.h"
+#include "../Core/Weapon.h"
 
 class Player : public GameObject {
 public:
@@ -13,6 +14,9 @@ public:
     void Update(float deltaTime) override;
 
 private:
+    Weapon* m_weapon; // Ссылка на оружие
+
+    void HandleWeaponInteraction(float deltaTime);
     void HandleMovement(const Uint8* keyboardState, SDL_FPoint& velocity, float deltaTime);
     void UpdateSpriteRow(const SDL_FPoint& velocity);
 

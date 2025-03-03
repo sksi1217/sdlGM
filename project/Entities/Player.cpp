@@ -40,38 +40,67 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	collider->OffsetColliderY = 14; // Смещение коллайдера по Y
 	collider->CircleRadius = 2; // Радиус круга
 	AddComponent(collider);
+
+	m_weapon = new Weapon({ 0, 0 }, texture);
 }
 
 void Player::Update(float deltaTime) {
-    auto animationComponent = GetComponent<AnimationComponent>();
-    auto collider = GetComponent<ColliderComponent>();
-    auto transform = GetComponent<TransformComponent>();
-    auto movement = GetComponent<MovementComponent>();
-    auto physics = GetComponent<PhysicsComponent>();
+	auto animationComponent = GetComponent<AnimationComponent>();
+	auto collider = GetComponent<ColliderComponent>();
+	auto transform = GetComponent<TransformComponent>();
+	auto movement = GetComponent<MovementComponent>();
+	auto physics = GetComponent<PhysicsComponent>();
 
-    if (!transform || !movement || !physics) return;
+	if (!transform || !movement || !physics) return;
 
-    // Сброс начальной скорости
-    physics->Velocity = { 0.0f, 0.0f };
+	// Сброс начальной скорости
+	physics->Velocity = { 0.0f, 0.0f };
 
-    // Обработка ввода с клавиатуры
-    const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
-    HandleMovement(keyboardState, physics->Velocity, deltaTime);
+	// Обработка ввода с клавиатуры
+	const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
+	HandleMovement(keyboardState, physics->Velocity, deltaTime);
 
-    // Обновление позиции с учетом времени
-    transform->Position = MathUtils::Add(transform->Position,
-        MathUtils::Multiply(physics->Velocity, movement->Speed * deltaTime));;
+	// Обновление позиции с учетом времени
+	transform->Position = MathUtils::Add(transform->Position,
+		MathUtils::Multiply(physics->Velocity, movement->Speed * deltaTime));;
 
-    // Обновление коллайдера
-    if (collider) collider->UpdatePosition(transform->Position);
+	// Обновление коллайдера
+	if (collider) collider->UpdatePosition(transform->Position);
 
-    // Обновление анимации
-    bool isMoving = (physics->Velocity.x != 0.0f || physics->Velocity.y != 0.0f);
-    if (animationComponent && animationComponent->animation) {
-        animationComponent->animation->Update(isMoving, static_cast<Uint32>(deltaTime * 1000.0f));
-    }
+	HandleWeaponInteraction(deltaTime);
+
+	// Обновление анимации
+	bool isMoving = (physics->Velocity.x != 0.0f || physics->Velocity.y != 0.0f);
+	if (animationComponent && animationComponent->animation) {
+		animationComponent->animation->Update(isMoving, static_cast<Uint32>(deltaTime * 1000.0f));
+	}
 }
 
+float ElapsedTime = 0;
+
+void Player::HandleWeaponInteraction(float deltaTime) {
+	// Увеличиваем прошедшее время
+	ElapsedTime += deltaTime;
+
+	// Если не идёт залп и прошло достаточно времени для начала нового залпа
+	if (ElapsedTime >= 1) {
+		// if (_allWeapons.size() > 0) {
+			// for (const auto& weaponPtr : _allWeapons) { // Итерация по unique_ptr
+				// if (!weaponPtr) continue; // Проверка на null-указатель
+
+				// Обновляем позицию оружия
+				// weaponPtr->Position = Position;
+
+				// Находим ближайшего врага
+				// weaponPtr->nearestEnemy = weaponPtr->FindNearestEnemy();
+
+				// Выполняем выстрел
+		m_weapon->Shoot({ 0, 0 });
+		// }
+		ElapsedTime = 0;
+		// }
+	}
+}
 
 // Обработка движения
 void Player::HandleMovement(const Uint8* keyboardState, SDL_FPoint& velocity, float deltaTime) {

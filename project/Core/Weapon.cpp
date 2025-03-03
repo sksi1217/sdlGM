@@ -60,17 +60,16 @@ float Weapon::CalculateDamage() {
 void Weapon::Shoot(const SDL_FPoint& Position) {
 	auto textere = GetComponent<RenderComponent>();
 
-	if (!textere) std::cerr << "Error texture bullet!" << std::endl; return;
+	// if (!textere) std::cerr << "Error texture bullet!" << std::endl; return;
 
-	m_nearestEnemy = FindNearestEnemy();
+	// m_nearestEnemy = FindNearestEnemy();
 
 	CreateBullet(Position, { 100, 100 }, textere->Texture);
 	std::cout << "Boom!" << std::endl;
 }
 
 void Weapon::Update(float deltaTime) {
-	auto weapon = GetComponent<WeaponComponent>();
-	weapon->m_lastShotTime += deltaTime;
+
 }
 
 void Weapon::CreateBullet(const SDL_FPoint& position, const SDL_FPoint& direction, SDL_Texture* texture) {
@@ -85,7 +84,7 @@ void Weapon::CreateBullet(const SDL_FPoint& position, const SDL_FPoint& directio
 
 	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
-	movement->Speed = 10;
+	movement->Speed = 40;
 	bullet->AddComponent(movement);
 
 	// StateComponent: Активность и коллизии
@@ -111,12 +110,17 @@ void Weapon::CreateBullet(const SDL_FPoint& position, const SDL_FPoint& directio
 	auto collider = std::make_shared<ColliderComponent>();
 	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
 	collider->OffsetColliderX = 8; // Смещение коллайдера по X
-	collider->OffsetColliderY = 14; // Смещение коллайдера по Y
+	collider->OffsetColliderY = 8; // Смещение коллайдера по Y
 	collider->CircleRadius = 1.5f; // Радиус круга
 	bullet->AddComponent(collider);
 
+	// 
+	auto weapon = std::make_shared<WeaponComponent>();
+	weapon->m_direction = direction;
+	bullet->AddComponent(weapon);
+
 	// Добавляем пулю в игровой мир
-	ManagerGame::objects.push_back(bullet);
+	ManagerGame::objects.push_back(std::move(bullet));
 }
 
 

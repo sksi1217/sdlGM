@@ -13,6 +13,8 @@ public:
     // Обновление состояния оружия
     void Update(float deltaTime) override;
 
+    // Выстрел
+    virtual void Shoot(const SDL_FPoint& Position);
 private:
     GameObject* FindNearestEnemy();
 
@@ -26,13 +28,7 @@ private:
     }
 
 protected:
-    
-
-
     GameObject* m_nearestEnemy = nullptr; // Ближайший враг
-
-    // Выстрел
-    virtual void Shoot(const SDL_FPoint& Position);
 
     // Создание пули
     virtual void CreateBullet(const SDL_FPoint& position, const SDL_FPoint& direction, SDL_Texture* texture);

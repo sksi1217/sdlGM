@@ -63,6 +63,6 @@ void CollisionSystem::Update() {
         }
     }
 
-    std::cout << "Number of collision checks: " << collisionChecks << std::endl;
+    // std::cout << "Number of collision checks: " << collisionChecks << std::endl;
 }
 

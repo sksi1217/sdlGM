@@ -89,33 +89,44 @@ void Game::LoadContent() {
 
 
 	// Создание игрока
-	player = std::make_shared<Player>(SDL_FPoint{ 0, 40 }, playerTexture);
+	player = std::make_shared<Player>(SDL_FPoint{ 0, 0 }, playerTexture);
 	ManagerGame::objects.push_back(player);
 
+	/*
 	enemy = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, enemyTexture);
 	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 16, 16 }, enemyTexture);
 	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 60, 80 }, enemyTexture);
 	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, enemyTexture);
 
 
-
-	// enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, enemyTexture);
-	// enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 17, 0 }, enemyTexture);
-	// enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 35, 0 }, enemyTexture);
-
-
 	ManagerGame::objects.push_back(enemy);
 	ManagerGame::objects.push_back(enemy1);
 	ManagerGame::objects.push_back(enemy2);
 	ManagerGame::objects.push_back(enemy3);
+	*/
 }
 
 // Logic Update
 void Game::Update(float deltaTime) 
 {
-	for (auto& obj : ManagerGame::objects) {
-		obj->Update(deltaTime);
+	for (size_t i = 0; i < ManagerGame::objects.size(); ) {
+		auto& obj = ManagerGame::objects[i];
+
+		auto statis = obj->GetComponent<StateComponent>();
+
+		// Проверяем, активен ли объект
+		if (!statis->IsActive) {
+			// Удаляем объект, если он неактивен
+			ManagerGame::objects.erase(ManagerGame::objects.begin() + i);
+		}
+		else {
+			// Обновляем объект, если он активен
+			obj->Update(deltaTime);
+			++i; // Переходим к следующему объекту
+		}
 	}
+
+	std::cout << ManagerGame::objects.size() << std::endl;
 
 	сollisionSystem.Update();
 

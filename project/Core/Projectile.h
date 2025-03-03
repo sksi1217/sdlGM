@@ -7,7 +7,5 @@ class Projectile : public GameObject {
 public:
 	Projectile();
 
-	~Projectile() {};
-
 	void Update(float deltaTime) override;
 };
