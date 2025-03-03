@@ -6,7 +6,6 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	// TransformComponent: Начальная позиция и масштаб
 	auto transform = std::make_shared<TransformComponent>();
 	transform->Position = startPosition;
-	transform->Origin = { 0, 0 };
 	AddComponent(transform);
 
 	// MovementComponent: Скорость движения

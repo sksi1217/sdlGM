@@ -1,12 +1,7 @@
 ﻿#pragma once
 
-#include "../Core/GameObject.h"
-#include "../Components/TransformComponent.h"
-#include "../Components/AnimationComponent.h"
-#include "../Components/MovementComponent.h"
-#include "../Components/StateComponent.h"
-#include "../Components/PhysicsComponent.h"
-#include "../Components/RenderComponent.h"
+#include "../Core/Component.h"
+
 #include "../Utils/TextureLoader.h"
 #include "../Resources/ManagerGame.h"
 

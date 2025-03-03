@@ -9,5 +9,6 @@ class ManagerGame {
 public:
     // Создание списка объектов 
     static std::vector<std::shared_ptr<GameObject>> objects;
+    static std::vector<std::shared_ptr<GameObject>> enemies;
 };
 #endif // MANAGERGAME_H

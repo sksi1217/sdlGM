@@ -155,6 +155,8 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="project\Core\Camera.cpp" />
     <ClCompile Include="project\Core\GameObject.cpp" />
+    <ClCompile Include="project\Core\Projectile.cpp" />
+    <ClCompile Include="project\Core\Weapon.cpp" />
     <ClCompile Include="project\Entities\Player.cpp" />
     <ClCompile Include="project\Entities\Skelet.cpp" />
     <ClCompile Include="project\Resources\ManagerGame.cpp" />
@@ -172,9 +174,12 @@
     <ClInclude Include="project\Components\RenderComponent.h" />
     <ClInclude Include="project\Components\StateComponent.h" />
     <ClInclude Include="project\Components\TransformComponent.h" />
+    <ClInclude Include="project\Components\WeaponComponent.h" />
     <ClInclude Include="project\Core\Camera.h" />
     <ClInclude Include="project\Core\Component.h" />
     <ClInclude Include="project\Core\GameObject.h" />
+    <ClInclude Include="project\Core\Projectile.h" />
+    <ClInclude Include="project\Core\Weapon.h" />
     <ClInclude Include="project\Entities\Player.h" />
     <ClInclude Include="project\Entities\Skelet.h" />
     <ClInclude Include="project\Resources\ManagerGame.h" />

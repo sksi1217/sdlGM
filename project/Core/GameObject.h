@@ -2,13 +2,7 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
-#include "../Components/TransformComponent.h"
-#include "../Components/RenderComponent.h"
-#include "../Components/AnimationComponent.h"
-#include "../Components/ColliderComponent.h"
-#include "../Components/PhysicsComponent.h"
-#include "../Components/StateComponent.h"
-
+#include "../Core/Component.h"
 #include "../Utils/MathUtils.h"
 
 #include "Camera.h"
@@ -17,7 +11,6 @@
 #include <string>
 #include <memory>
 #include <SDL.h>
-#include "Component.h"
 
 class GameObject {
 public:
@@ -36,12 +29,7 @@ public:
     virtual void Update(float deltaTime);
     virtual void Draw(SDL_Renderer* renderer, const Camera& camera);
 
-    bool CheckCollision(GameObject* other);
-    void ResolveCollision(GameObject* other);
-
 private:
-    float epsilon = 0.1f;
-
     // Функция для отрисовки круга
     void RenderCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius, float cameraScale, const Camera& camera) {
         int scaledRadius = static_cast<int>(radius * cameraScale); // Масштабируем радиус

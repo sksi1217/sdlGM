@@ -1,4 +1,5 @@
 ﻿#include "MathUtils.h"
+#include <random>
 
 float MathUtils::Length(const SDL_FPoint& vector) {
     return std::sqrt(vector.x * vector.x + vector.y * vector.y);
@@ -39,7 +40,13 @@ float MathUtils::Dot(const SDL_FPoint& a, const SDL_FPoint& b) {
     return a.x * b.x + a.y * b.y;
 }
 
-// Функция для инверсии вектора
 SDL_FPoint MathUtils::Negate(const SDL_FPoint& vector) {
     return { -vector.x, -vector.y };
+}
+
+float MathUtils::NextFloat() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<> dis(0.0f, 1.0f);
+    return dis(gen);
 }

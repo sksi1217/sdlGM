@@ -12,6 +12,8 @@
     <ClCompile Include="project\Systems\CollisionSystem.cpp" />
     <ClCompile Include="project\Utils\MathUtils.cpp" />
     <ClCompile Include="project\Utils\TextureLoader.cpp" />
+    <ClCompile Include="project\Core\Weapon.cpp" />
+    <ClCompile Include="project\Core\Projectile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
@@ -33,5 +35,8 @@
     <ClInclude Include="project\Systems\MovementSystem.h" />
     <ClInclude Include="project\Utils\MathUtils.h" />
     <ClInclude Include="project\Utils\TextureLoader.h" />
+    <ClInclude Include="project\Core\Weapon.h" />
+    <ClInclude Include="project\Core\Projectile.h" />
+    <ClInclude Include="project\Components\WeaponComponent.h" />
   </ItemGroup>
 </Project>
