@@ -40,6 +40,7 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	collider->OffsetColliderX = 8; // Смещение коллайдера по X
 	collider->OffsetColliderY = 14; // Смещение коллайдера по Y
 	collider->CircleRadius = 2; // Радиус круга
+	collider->m_layer = ColliderComponent::Layer::Enemy;
 	AddComponent(collider);
 }
 

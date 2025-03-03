@@ -14,6 +14,34 @@ public:
 
 	void Update();
 
+	bool ShouldCollide(GameObject* objA, GameObject* objB) {
+		auto colliderA = objA->GetComponent<ColliderComponent>();
+		auto colliderB = objB->GetComponent<ColliderComponent>();
+
+		if ((colliderA->m_layer == ColliderComponent::Layer::Player && colliderB->m_layer == ColliderComponent::Layer::Enemy) ||
+			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::Player)) {
+			return true; // Игрок и враг сталкиваются
+		}
+
+		if ((colliderA->m_layer == ColliderComponent::Layer::Player && colliderB->m_layer == ColliderComponent::Layer::Enemy) ||
+			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::Player)) {
+			return true; // Игрок и враг сталкиваются
+		}
+
+		if ((colliderA->m_layer == ColliderComponent::Layer::Bullet && colliderB->m_layer == ColliderComponent::Layer::Enemy) ||
+			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::Bullet)) {
+			return true; // Пуля и враг сталкиваются
+		}
+
+		if ((colliderA->m_layer == ColliderComponent::Layer::Player || colliderB->m_layer == ColliderComponent::Layer::Player) &&
+			(colliderA->m_layer == ColliderComponent::Layer::Wall || colliderB->m_layer == ColliderComponent::Layer::Wall)) {
+			return true; // Игрок сталкивается со стеной
+		}
+
+
+		return false; // По умолчанию не сталкиваются
+	}
+
 #pragma region Check Collision
 	bool CheckRectRectCollision(ColliderComponent* a, ColliderComponent* b) {
 		return (a->Collider.x < b->Collider.x + b->Collider.w &&

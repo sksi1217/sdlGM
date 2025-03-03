@@ -57,14 +57,14 @@ float Weapon::CalculateDamage() {
 	return totalDamage;
 }
 
-void Weapon::Shoot(const SDL_FPoint& Position) {
+void Weapon::Shoot(SDL_FPoint& Position) {
 	auto textere = GetComponent<RenderComponent>();
 
 	// if (!textere) std::cerr << "Error texture bullet!" << std::endl; return;
 
 	// m_nearestEnemy = FindNearestEnemy();
 
-	CreateBullet(Position, { 100, 100 }, textere->Texture);
+	CreateBullet(Position, { 0, 0 }, textere->Texture);
 	std::cout << "Boom!" << std::endl;
 }
 
@@ -72,19 +72,24 @@ void Weapon::Update(float deltaTime) {
 
 }
 
-void Weapon::CreateBullet(const SDL_FPoint& position, const SDL_FPoint& direction, SDL_Texture* texture) {
+void Weapon::CreateBullet(SDL_FPoint& position, const SDL_FPoint& target, SDL_Texture* texture) {
 	// Создаем новую пулю как GameObject
 	std::shared_ptr<GameObject> bullet = std::make_shared<Projectile>();
 
 	// TransformComponent: Начальная позиция и масштаб
 	auto transform = std::make_shared<TransformComponent>();
+	position.y += 8;
 	transform->Position = position;
-	transform->Origin = { 8, 8 };
+	transform->Origin = { 0, 0 };
+	transform->Scale = 0.2;
 	bullet->AddComponent(transform);
+
+	std::cout << "Position.x " << transform->Position.x << std::endl;
+	std::cout << "Position.y " << transform->Position.y << std::endl;
 
 	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
-	movement->Speed = 40;
+	movement->Speed = 50;
 	bullet->AddComponent(movement);
 
 	// StateComponent: Активность и коллизии
@@ -93,6 +98,15 @@ void Weapon::CreateBullet(const SDL_FPoint& position, const SDL_FPoint& directio
 
 	// PhysicsComponent: Масса и сила отталкивания
 	auto physics = std::make_shared<PhysicsComponent>();
+	// Вектор направления: разница между позицией цели и позицией пули
+	SDL_FPoint direction = MathUtils::Subtract(target, position);
+	float length = MathUtils::Length(direction);
+	if (length > 0.0f) {
+		physics->Velocity = MathUtils::Normalize(direction);
+	}
+	else {
+		physics->Velocity = { 0.0f, 0.0f };
+	}
 	bullet->AddComponent(physics);
 
 	// RenderComponent: Текстура и цвет
@@ -111,7 +125,8 @@ void Weapon::CreateBullet(const SDL_FPoint& position, const SDL_FPoint& directio
 	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
 	collider->OffsetColliderX = 8; // Смещение коллайдера по X
 	collider->OffsetColliderY = 8; // Смещение коллайдера по Y
-	collider->CircleRadius = 1.5f; // Радиус круга
+	collider->CircleRadius = 3; // Радиус круга
+	collider->m_layer = ColliderComponent::Layer::Bullet;
 	bullet->AddComponent(collider);
 
 	// 
@@ -120,7 +135,7 @@ void Weapon::CreateBullet(const SDL_FPoint& position, const SDL_FPoint& directio
 	bullet->AddComponent(weapon);
 
 	// Добавляем пулю в игровой мир
-	ManagerGame::objects.push_back(std::move(bullet));
+	ManagerGame::objects.push_back(bullet);
 }
 
 

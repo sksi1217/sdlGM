@@ -14,7 +14,7 @@ public:
     void Update(float deltaTime) override;
 
     // Выстрел
-    virtual void Shoot(const SDL_FPoint& Position);
+    virtual void Shoot(SDL_FPoint& Position);
 private:
     GameObject* FindNearestEnemy();
 
@@ -31,7 +31,7 @@ protected:
     GameObject* m_nearestEnemy = nullptr; // Ближайший враг
 
     // Создание пули
-    virtual void CreateBullet(const SDL_FPoint& position, const SDL_FPoint& direction, SDL_Texture* texture);
+    virtual void CreateBullet(SDL_FPoint& position, const SDL_FPoint& direction, SDL_Texture* texture);
 };
 
 #endif // WEAPON_H

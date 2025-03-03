@@ -39,9 +39,8 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	collider->OffsetColliderX = 8; // Смещение коллайдера по X
 	collider->OffsetColliderY = 14; // Смещение коллайдера по Y
 	collider->CircleRadius = 2; // Радиус круга
+	collider->m_layer = ColliderComponent::Layer::Player;
 	AddComponent(collider);
-
-	m_weapon = new Weapon({ 0, 0 }, texture);
 }
 
 void Player::Update(float deltaTime) {
@@ -69,6 +68,9 @@ void Player::Update(float deltaTime) {
 
 	HandleWeaponInteraction(deltaTime);
 
+	std::cout << "Positio.xP " << transform->Position.x << std::endl;
+	std::cout << "Positio.yP " << transform->Position.y << std::endl;
+
 	// Обновление анимации
 	bool isMoving = (physics->Velocity.x != 0.0f || physics->Velocity.y != 0.0f);
 	if (animationComponent && animationComponent->animation) {
@@ -84,21 +86,23 @@ void Player::HandleWeaponInteraction(float deltaTime) {
 
 	// Если не идёт залп и прошло достаточно времени для начала нового залпа
 	if (ElapsedTime >= 1) {
-		// if (_allWeapons.size() > 0) {
-			// for (const auto& weaponPtr : _allWeapons) { // Итерация по unique_ptr
-				// if (!weaponPtr) continue; // Проверка на null-указатель
+		if (ManagerGame::_allWeapons.size() > 0) {
+			for (const auto& obj : ManagerGame::_allWeapons) { // Итерация по unique_ptr
+				if (!obj) continue; // Проверка на null-указатель
 
-				// Обновляем позицию оружия
-				// weaponPtr->Position = Position;
+				auto weapon = std::dynamic_pointer_cast<Weapon>(obj);
 
 				// Находим ближайшего врага
 				// weaponPtr->nearestEnemy = weaponPtr->FindNearestEnemy();
 
 				// Выполняем выстрел
-		m_weapon->Shoot({ 0, 0 });
-		// }
-		ElapsedTime = 0;
-		// }
+				if (weapon) {
+					// Вызываем метод Shoot, если объект — оружие
+					weapon->Shoot(GetComponent<TransformComponent>()->Position);
+				}
+			}
+			ElapsedTime = 0;
+		}
 	}
 }
 

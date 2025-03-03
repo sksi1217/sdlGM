@@ -14,7 +14,7 @@ public:
     void Update(float deltaTime) override;
 
 private:
-    Weapon* m_weapon; // Ссылка на оружие
+    
 
     void HandleWeaponInteraction(float deltaTime);
     void HandleMovement(const Uint8* keyboardState, SDL_FPoint& velocity, float deltaTime);

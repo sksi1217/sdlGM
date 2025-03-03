@@ -56,7 +56,7 @@ void CollisionSystem::Update() {
         for (size_t i = 0; i < cellObjects.size(); ++i) {
             for (size_t j = i + 1; j < cellObjects.size(); ++j) {
                 collisionChecks++;
-                if (CheckCollision(cellObjects[i], cellObjects[j])) {
+                if (CheckCollision(cellObjects[i], cellObjects[j]) && ShouldCollide(cellObjects[i], cellObjects[j])) {
                     ResolveCollision(cellObjects[i], cellObjects[j]);
                 }
             }

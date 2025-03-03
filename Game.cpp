@@ -18,6 +18,9 @@ std::shared_ptr<GameObject> enemy2;
 std::shared_ptr<GameObject> enemy3;
 
 Camera camera = { {800, 600}, 5 };
+
+std::shared_ptr<GameObject> weapon;
+
 CollisionSystem сollisionSystem;
 
 // Designer
@@ -73,6 +76,14 @@ Game::~Game() {
 
 // Initialization
 void Game::Initialize() {
+	// Создание текстуры через TextureLoader
+	TextureLoader& loader = TextureLoader::GetInstance();
+
+	SDL_Texture* boxTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/box.png", renderer);
+
+	std::cout << "Initialized Weapons!" << std::endl;
+	weapon = std::make_shared<Weapon>(SDL_FPoint{ 0, 0 }, boxTexture);
+
 	std::cout << "Game initialized!" << std::endl;
 }
 
@@ -92,8 +103,10 @@ void Game::LoadContent() {
 	player = std::make_shared<Player>(SDL_FPoint{ 0, 0 }, playerTexture);
 	ManagerGame::objects.push_back(player);
 
+	
+
 	/*
-	enemy = std::make_shared<Skelet>(SDL_FPoint{ 0, 0 }, enemyTexture);
+	enemy = std::make_shared<Skelet>(SDL_FPoint{ 50, 0 }, enemyTexture);
 	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 16, 16 }, enemyTexture);
 	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 60, 80 }, enemyTexture);
 	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, enemyTexture);
@@ -104,6 +117,8 @@ void Game::LoadContent() {
 	ManagerGame::objects.push_back(enemy2);
 	ManagerGame::objects.push_back(enemy3);
 	*/
+
+	ManagerGame::_allWeapons.push_back(weapon);
 }
 
 // Logic Update
@@ -126,7 +141,7 @@ void Game::Update(float deltaTime)
 		}
 	}
 
-	std::cout << ManagerGame::objects.size() << std::endl;
+	// std::cout << ManagerGame::objects.size() << std::endl;
 
 	сollisionSystem.Update();
 
