@@ -4,6 +4,9 @@
 Алгоритм Брезенхэма использую для рисования круга:
 https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 
+
+https://en.m.wikipedia.org/wiki/Elliptic_orbit
+
 ---
 
 ### 2. **Взаимодействия между слоями (Пример)**
