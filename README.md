@@ -5,6 +5,7 @@
 https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 
 
+Elliptic orbit:
 https://en.m.wikipedia.org/wiki/Elliptic_orbit
 
 ---
