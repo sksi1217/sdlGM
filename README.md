@@ -8,6 +8,11 @@ https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 Elliptic orbit:
 https://en.m.wikipedia.org/wiki/Elliptic_orbit
 
+Гомановская траектория:
+https://en.wikipedia.org/wiki/Hohmann_transfer_orbit
+
+
+
 ---
 
 ### 2. **Взаимодействия между слоями (Пример)**
