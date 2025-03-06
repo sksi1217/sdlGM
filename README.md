@@ -23,7 +23,6 @@ AbilityComponent.h      - Пассивные предметы
 EffectComponent.h       - Временные эффекты (BUFFS/DEBUFFS)
 ResourceGatheringComponent.h - Сбор ресурсов
 LevelComponent.h        - Уровень и опыт персонажа
-SizeComponent.h         - Размер персонажа
 ```
 
 # Игрок (пример)
