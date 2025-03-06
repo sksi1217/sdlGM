@@ -15,6 +15,17 @@ PACING CURVE - нужно для того чтобы была интенсивн
 
 ---
 
+```
+AttributesComponent.h   - Основные характеристики (сила, ловкость, интеллект)
+CombatComponent.h       - Боевые характеристики (точность, уклонение, сопротивление)
+EnergyComponent.h       - Энергия/мана и её регенерация
+AbilityComponent.h      - Пассивные предметы
+EffectComponent.h       - Временные эффекты (BUFFS/DEBUFFS)
+ResourceGatheringComponent.h - Сбор ресурсов
+LevelComponent.h        - Уровень и опыт персонажа
+SizeComponent.h         - Размер персонажа
+```
+
 # Игрок (пример)
 #### Основные характеристики:
 - [x] Здоровье (HP)  
