@@ -11,7 +11,7 @@ https://en.m.wikipedia.org/wiki/Elliptic_orbit
 Гомановская траектория:
 https://en.wikipedia.org/wiki/Hohmann_transfer_orbit
 
-PACING CURVE - нужно для того чтобы была интенсивность собития сложности 
+PACING CURVE - нужно для того чтобы была интенсивность собития сложности (пейсинг)
 
 ---
 
