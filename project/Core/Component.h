@@ -4,6 +4,7 @@ class Component {};
 
 class GameObject;
 class TransformComponent;
+class HealthComponent;
 class AnimationComponent;
 class MovementComponent;
 class StateComponent;
@@ -13,6 +14,7 @@ class ColliderComponent;
 class WeaponComponent;
 
 #include "../Core/GameObject.h"
+#include "../Components/HealthComponent.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/AnimationComponent.h"
 #include "../Components/MovementComponent.h"

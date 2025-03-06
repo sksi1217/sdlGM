@@ -4,8 +4,9 @@ Projectile::Projectile() { }
 
 void Projectile::Update(float deltaTime)
 {
+    auto collider = GetComponent<ColliderComponent>();
 	auto weapon = GetComponent<WeaponComponent>();
-	auto collider = GetComponent<ColliderComponent>();
+	
 	auto status = GetComponent<StateComponent>();
 	auto transform = GetComponent<TransformComponent>();
 	auto movement = GetComponent<MovementComponent>();

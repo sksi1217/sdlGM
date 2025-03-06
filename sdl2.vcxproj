@@ -169,6 +169,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="project\Components\AnimationComponent.h" />
     <ClInclude Include="project\Components\ColliderComponent.h" />
+    <ClInclude Include="project\Components\HealthComponent.h" />
     <ClInclude Include="project\Components\MovementComponent.h" />
     <ClInclude Include="project\Components\PhysicsComponent.h" />
     <ClInclude Include="project\Components\RenderComponent.h" />

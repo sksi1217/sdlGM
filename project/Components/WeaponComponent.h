@@ -5,6 +5,8 @@
 
 class WeaponComponent : public Component {
 public:
+    bool m_remove_bullet = true;
+
     int m_damage = 10; // Базовый урон
     float m_criticalChance = 0.05f; // Шанс критического удара
     float m_criticalMultiplier = 2.0f; // Множитель критического удара

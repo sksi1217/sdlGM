@@ -18,28 +18,17 @@ public:
 		auto colliderA = objA->GetComponent<ColliderComponent>();
 		auto colliderB = objB->GetComponent<ColliderComponent>();
 
-		if ((colliderA->m_layer == ColliderComponent::Layer::Player && colliderB->m_layer == ColliderComponent::Layer::Enemy) ||
-			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::Player)) {
-			return true; // Игрок и враг сталкиваются
+		if ((colliderA->m_layer == ColliderComponent::Layer::Bullet && colliderB->m_layer == ColliderComponent::Layer::Player) ||
+			(colliderA->m_layer == ColliderComponent::Layer::Player && colliderB->m_layer == ColliderComponent::Layer::Bullet)) {
+			return false; // Игрок и пуля не сталкиваются
 		}
 
-		if ((colliderA->m_layer == ColliderComponent::Layer::Player && colliderB->m_layer == ColliderComponent::Layer::Enemy) ||
-			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::Player)) {
-			return true; // Игрок и враг сталкиваются
+		if ((colliderA->m_layer == ColliderComponent::Layer::BulletNoCollider && colliderB->m_layer == ColliderComponent::Layer::Enemy) ||
+			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::BulletNoCollider)) {
+			return false; // Игрок и пуля не сталкиваются
 		}
 
-		if ((colliderA->m_layer == ColliderComponent::Layer::Bullet && colliderB->m_layer == ColliderComponent::Layer::Enemy) ||
-			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::Bullet)) {
-			return true; // Пуля и враг сталкиваются
-		}
-
-		if ((colliderA->m_layer == ColliderComponent::Layer::Player || colliderB->m_layer == ColliderComponent::Layer::Player) &&
-			(colliderA->m_layer == ColliderComponent::Layer::Wall || colliderB->m_layer == ColliderComponent::Layer::Wall)) {
-			return true; // Игрок сталкивается со стеной
-		}
-
-
-		return false; // По умолчанию не сталкиваются
+		return true; // По умолчанию сталкиваются
 	}
 
 #pragma region Check Collision
@@ -88,106 +77,103 @@ public:
 
 	// Решение коллизии
 	void ResolveCollision(GameObject* objA, GameObject* objB) {
-		auto transformA = objA->GetComponent<TransformComponent>();
+		// Проверка компонентов
+		if (!objA->GetComponent<TransformComponent>() ||
+			!objB->GetComponent<TransformComponent>()) {
+			return;
+		}
+
+		// Проверка слоев
+		auto layerA = objA->GetComponent<ColliderComponent>()->m_layer;
+		auto layerB = objB->GetComponent<ColliderComponent>()->m_layer;
+
+		// Обработка пуля-враг
+		if ((IsLayer(objA, ColliderComponent::Layer::Bullet) || IsLayer(objA, ColliderComponent::Layer::BulletNoCollider)) &&
+			IsLayer(objB, ColliderComponent::Layer::Enemy)) {
+			HandleProjectileEnemyCollision(objA, objB);
+			return;
+		}
+		if ((IsLayer(objB, ColliderComponent::Layer::Bullet) || IsLayer(objB, ColliderComponent::Layer::BulletNoCollider)) &&
+			IsLayer(objA, ColliderComponent::Layer::Enemy)) {
+			HandleProjectileEnemyCollision(objB, objA);
+			return;
+		}
+
+		// Обработка игрок-враг
+		if ((IsLayer(objA, ColliderComponent::Layer::Player) && IsLayer(objB, ColliderComponent::Layer::Enemy)) ||
+			(IsLayer(objB, ColliderComponent::Layer::Player) && IsLayer(objA, ColliderComponent::Layer::Enemy))) {
+
+			GameObject* player = IsLayer(objA, ColliderComponent::Layer::Player) ? objA : objB;
+			GameObject* enemy = IsLayer(objA, ColliderComponent::Layer::Enemy) ? objA : objB;
+			HandlePlayerEnemyCollision(player, enemy);
+			// return;
+		}
+
+		// Стандартная обработка коллизий
 		auto colliderA = objA->GetComponent<ColliderComponent>();
-		auto physicsA = objA->GetComponent<PhysicsComponent>();
-
-		auto transformB = objB->GetComponent<TransformComponent>();
 		auto colliderB = objB->GetComponent<ColliderComponent>();
-		auto physicsB = objB->GetComponent<PhysicsComponent>();
 
-		if (!transformA || !colliderA || !transformB || !colliderB) return;
+
+		if (!colliderA || !colliderB) return;
 
 		switch (colliderA->Type) {
 		case ColliderComponent::ColliderType::RECTANGLE:
 			switch (colliderB->Type) {
 			case ColliderComponent::ColliderType::RECTANGLE:
-				ResolveRectRectCollision(objA, objB);
-				break;
-
+				ResolveRectRectCollision(objA, objB); break;
 			case ColliderComponent::ColliderType::CIRCLE:
-				ResolveRectCircleCollision(objA, objB);
-				break;
-
-			default:
-				break;
+				ResolveRectCircleCollision(objA, objB); break;
 			}
 			break;
-
 		case ColliderComponent::ColliderType::CIRCLE:
 			switch (colliderB->Type) {
 			case ColliderComponent::ColliderType::RECTANGLE:
-				ResolveCircleRectCollision(objA, objB);
-				break;
-
+				ResolveCircleRectCollision(objA, objB); break;
 			case ColliderComponent::ColliderType::CIRCLE:
-				ResolveCircleCircleCollision(objA, objB);
-				break;
-
-			default:
-				break;
+				ResolveCircleCircleCollision(objA, objB); break;
 			}
 			break;
+		}
+	}
 
-		default:
-			break;
+	// Обработка столкновений пули и врага
+	void HandleProjectileEnemyCollision(GameObject* projectile, GameObject* enemy) {
+		auto weapon = projectile->GetComponent<WeaponComponent>();
+		if (weapon && weapon->m_remove_bullet) {
+			projectile->GetComponent<StateComponent>()->IsActive = false;
+		}
+		ApplyDamage(enemy, 10.0f); // Урон врагу
+	}
+
+	// Обработка столкновений игрока и врага
+	void HandlePlayerEnemyCollision(GameObject* player, GameObject* enemy) {
+		ApplyDamage(player, 1.0f); // Урон игроку
+		ApplyDamage(enemy, 1.0f); // Урон врагу (опционально)
+	}
+
+	bool IsLayer(GameObject* obj, ColliderComponent::Layer layer) {
+		auto collider = obj->GetComponent<ColliderComponent>();
+		return collider && collider->m_layer == layer;
+	}
+
+	void ApplyDamage(GameObject* target, float damage) {
+		auto health = target->GetComponent<HealthComponent>();
+		if (health) {
+			health->TakeDamage(damage);
+			if (health->CurrentHealth <= 0.0f) {
+				target->GetComponent<StateComponent>()->IsActive = false;
+				// Вызов OnDeath() если есть
+				if constexpr (std::is_base_of_v<GameObject, std::remove_pointer_t<decltype(target)>>) {
+					std::cout << "Dead!" << std::endl;
+					//target->OnDeath();
+				}
+			}
 		}
 	}
 
 	// Разрешение коллизии круг-прямоугольник
 	void ResolveCircleRectCollision(GameObject* circleObj, GameObject* rectObj) {
 		ResolveRectCircleCollision(rectObj, circleObj); // Симметричный случай
-	}
-
-	// Разрешение коллизии прямоугольник-прямоугольник с учетом статических объектов
-	void ResolveRectRectCollision(GameObject* objA, GameObject* objB) {
-		auto transformA = objA->GetComponent<TransformComponent>();
-		auto colliderA = objA->GetComponent<ColliderComponent>();
-		auto physicsA = objA->GetComponent<PhysicsComponent>();
-
-		auto transformB = objB->GetComponent<TransformComponent>();
-		auto colliderB = objB->GetComponent<ColliderComponent>();
-		auto physicsB = objB->GetComponent<PhysicsComponent>();
-
-		if (!transformA || !colliderA || !physicsA || !transformB || !colliderB || !physicsB) return;
-
-		// Вычисляем перекрытие по осям X и Y
-		int overlapX = std::min(
-			colliderA->Collider.x + colliderA->Collider.w - colliderB->Collider.x,
-			colliderB->Collider.x + colliderB->Collider.w - colliderA->Collider.x
-		);
-
-		int overlapY = std::min(
-			colliderA->Collider.y + colliderA->Collider.h - colliderB->Collider.y,
-			colliderB->Collider.y + colliderB->Collider.h - colliderA->Collider.y
-		);
-
-		if (overlapX < overlapY) {
-			// Перекрытие больше по оси X
-			if (colliderA->Collider.x < colliderB->Collider.x) {
-				if (!physicsA->IsStatic) transformA->Position.x -= overlapX;
-				if (!physicsB->IsStatic) transformB->Position.x += overlapX;
-			}
-			else {
-				if (!physicsA->IsStatic) transformA->Position.x += overlapX;
-				if (!physicsB->IsStatic) transformB->Position.x -= overlapX;
-			}
-		}
-		else {
-			// Перекрытие больше по оси Y
-			if (colliderA->Collider.y < colliderB->Collider.y) {
-				if (!physicsA->IsStatic) transformA->Position.y -= overlapY;
-				if (!physicsB->IsStatic) transformB->Position.y += overlapY;
-			}
-			else {
-				if (!physicsA->IsStatic) transformA->Position.y += overlapY;
-				if (!physicsB->IsStatic) transformB->Position.y -= overlapY;
-			}
-		}
-
-		// Обновляем позиции коллайдеров
-		colliderA->UpdatePosition(transformA->Position);
-		colliderB->UpdatePosition(transformB->Position);
 	}
 
 	// Разрешение коллизии прямоугольник-круг с учетом статических объектов
@@ -310,5 +296,56 @@ public:
 			colliderA->UpdatePosition(transformA->Position);
 			colliderB->UpdatePosition(transformB->Position);
 		}
+	}
+
+	// Разрешение коллизии прямоугольник-прямоугольник с учетом статических объектов
+	void ResolveRectRectCollision(GameObject* objA, GameObject* objB) {
+		auto transformA = objA->GetComponent<TransformComponent>();
+		auto colliderA = objA->GetComponent<ColliderComponent>();
+		auto physicsA = objA->GetComponent<PhysicsComponent>();
+
+		auto transformB = objB->GetComponent<TransformComponent>();
+		auto colliderB = objB->GetComponent<ColliderComponent>();
+		auto physicsB = objB->GetComponent<PhysicsComponent>();
+
+		if (!transformA || !colliderA || !physicsA || !transformB || !colliderB || !physicsB) return;
+
+		// Вычисляем перекрытие по осям X и Y
+		int overlapX = std::min(
+			colliderA->Collider.x + colliderA->Collider.w - colliderB->Collider.x,
+			colliderB->Collider.x + colliderB->Collider.w - colliderA->Collider.x
+		);
+
+		int overlapY = std::min(
+			colliderA->Collider.y + colliderA->Collider.h - colliderB->Collider.y,
+			colliderB->Collider.y + colliderB->Collider.h - colliderA->Collider.y
+		);
+
+		if (overlapX < overlapY) {
+			// Перекрытие больше по оси X
+			if (colliderA->Collider.x < colliderB->Collider.x) {
+				if (!physicsA->IsStatic) transformA->Position.x -= overlapX;
+				if (!physicsB->IsStatic) transformB->Position.x += overlapX;
+			}
+			else {
+				if (!physicsA->IsStatic) transformA->Position.x += overlapX;
+				if (!physicsB->IsStatic) transformB->Position.x -= overlapX;
+			}
+		}
+		else {
+			// Перекрытие больше по оси Y
+			if (colliderA->Collider.y < colliderB->Collider.y) {
+				if (!physicsA->IsStatic) transformA->Position.y -= overlapY;
+				if (!physicsB->IsStatic) transformB->Position.y += overlapY;
+			}
+			else {
+				if (!physicsA->IsStatic) transformA->Position.y += overlapY;
+				if (!physicsB->IsStatic) transformB->Position.y -= overlapY;
+			}
+		}
+
+		// Обновляем позиции коллайдеров
+		colliderA->UpdatePosition(transformA->Position);
+		colliderB->UpdatePosition(transformB->Position);
 	}
 };

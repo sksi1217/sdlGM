@@ -8,9 +8,12 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	transform->Position = startPosition;
 	AddComponent(transform);
 
+	auto health = std::make_shared<HealthComponent>();
+	AddComponent(health);
+
 	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
-	movement->Speed = 10;
+	movement->Speed = 0;
 	AddComponent(movement);
 
 	// StateComponent: Активность и коллизии
@@ -39,7 +42,7 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
 	collider->OffsetColliderX = 8; // Смещение коллайдера по X
 	collider->OffsetColliderY = 14; // Смещение коллайдера по Y
-	collider->CircleRadius = 2; // Радиус круга
+	collider->CircleRadius = 2.7; // Радиус круга
 	collider->m_layer = ColliderComponent::Layer::Enemy;
 	AddComponent(collider);
 }
@@ -48,6 +51,7 @@ void Skelet::Update(float deltaTime) {
 	auto animationComponent = GetComponent<AnimationComponent>();
 	auto transform = GetComponent<TransformComponent>();
 	auto collider = GetComponent<ColliderComponent>();
+	auto healt = GetComponent<HealthComponent>();
 	
 	direction = { targetPosition.x - transform->Position.x, targetPosition.y - transform->Position.y };
 	direction = MathUtils::Normalize(direction);
@@ -57,9 +61,7 @@ void Skelet::Update(float deltaTime) {
 
 	HandleMovement(deltaTime);
 	
-
-	// Обновление коллайдера
-	// if (collider) collider->UpdatePosition(transform->Position);
+	healt->Update(deltaTime);
 
 	bool isMoving = (direction.x != 0.0f || direction.y != 0.0f);
 	if (animationComponent && animationComponent->animation) animationComponent->animation->Update(isMoving, static_cast<Uint32>(deltaTime * 1000.0f));

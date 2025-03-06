@@ -38,5 +38,6 @@
     <ClInclude Include="project\Core\Weapon.h" />
     <ClInclude Include="project\Core\Projectile.h" />
     <ClInclude Include="project\Components\WeaponComponent.h" />
+    <ClInclude Include="project\Components\HealthComponent.h" />
   </ItemGroup>
 </Project>

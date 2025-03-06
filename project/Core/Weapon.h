@@ -4,19 +4,19 @@
 
 #include "../Core/Component.h"
 #include "../Resources/ManagerGame.h"
+#include "../Entities/Player.h"
+
+class Player;
 
 class Weapon : public GameObject {
 public:
     // Конструктор
     Weapon(const SDL_FPoint& startPosition, SDL_Texture* texture);
 
-    // Обновление состояния оружия
-    void Update(float deltaTime) override;
-
     // Выстрел
-    virtual void Shoot(SDL_FPoint& Position);
+    virtual void Shoot(Player* player);
 private:
-    GameObject* FindNearestEnemy();
+    GameObject* FindNearestEnemy(Player* player);
 
     // Метод для расчета урона
     float CalculateDamage();

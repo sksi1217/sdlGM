@@ -13,9 +13,9 @@ public:
 
     void Update(float deltaTime) override;
 
-private:
-    
+    void Draw(SDL_Renderer* renderer, const Camera& camera) override;
 
+private:
     void HandleWeaponInteraction(float deltaTime);
     void HandleMovement(const Uint8* keyboardState, SDL_FPoint& velocity, float deltaTime);
     void UpdateSpriteRow(const SDL_FPoint& velocity);

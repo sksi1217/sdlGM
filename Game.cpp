@@ -105,7 +105,7 @@ void Game::LoadContent() {
 
 	
 
-	/*
+	
 	enemy = std::make_shared<Skelet>(SDL_FPoint{ 50, 0 }, enemyTexture);
 	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 16, 16 }, enemyTexture);
 	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 60, 80 }, enemyTexture);
@@ -116,7 +116,14 @@ void Game::LoadContent() {
 	ManagerGame::objects.push_back(enemy1);
 	ManagerGame::objects.push_back(enemy2);
 	ManagerGame::objects.push_back(enemy3);
-	*/
+	
+
+	ManagerGame::enemies.push_back(enemy);
+	ManagerGame::enemies.push_back(enemy1);
+	ManagerGame::enemies.push_back(enemy2);
+	ManagerGame::enemies.push_back(enemy3);
+
+
 
 	ManagerGame::_allWeapons.push_back(weapon);
 }
@@ -141,7 +148,8 @@ void Game::Update(float deltaTime)
 		}
 	}
 
-	// std::cout << ManagerGame::objects.size() << std::endl;
+	// std::cout << "objects " << ManagerGame::objects.size() << std::endl;
+	// std::cout << "enemies " << ManagerGame::enemies.size() << std::endl;
 
 	сollisionSystem.Update();
 

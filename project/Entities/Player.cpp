@@ -8,6 +8,9 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	transform->Position = startPosition;
 	AddComponent(transform);
 
+	auto health = std::make_shared<HealthComponent>();
+	AddComponent(health);
+
 	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
 	movement->Speed = 50;
@@ -68,9 +71,6 @@ void Player::Update(float deltaTime) {
 
 	HandleWeaponInteraction(deltaTime);
 
-	std::cout << "Positio.xP " << transform->Position.x << std::endl;
-	std::cout << "Positio.yP " << transform->Position.y << std::endl;
-
 	// Обновление анимации
 	bool isMoving = (physics->Velocity.x != 0.0f || physics->Velocity.y != 0.0f);
 	if (animationComponent && animationComponent->animation) {
@@ -98,7 +98,7 @@ void Player::HandleWeaponInteraction(float deltaTime) {
 				// Выполняем выстрел
 				if (weapon) {
 					// Вызываем метод Shoot, если объект — оружие
-					weapon->Shoot(GetComponent<TransformComponent>()->Position);
+					weapon->Shoot(this);
 				}
 			}
 			ElapsedTime = 0;
@@ -133,4 +133,14 @@ void Player::UpdateSpriteRow(const SDL_FPoint& velocity) {
 	else {
 		animation->SpriteRow = (velocity.y > 0.0f) ? DownRow : UpRow;
 	}
+}
+
+void Player::Draw(SDL_Renderer* renderer, const Camera& camera)
+{
+	GameObject::Draw(renderer, camera);
+
+	auto healt = GetComponent<HealthComponent>();
+	if (!healt) return;
+	DrawHealthBar(renderer, healt->CurrentHealth, healt->MaxHealth, 10, 10, 100, 20);
+
 }
