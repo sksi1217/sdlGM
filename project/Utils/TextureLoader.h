@@ -4,29 +4,34 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 class TextureLoader {
 public:
-    // Одиночка (singleton) для доступа к TextureLoader
     static TextureLoader& GetInstance();
 
-    // Загрузка текстуры по пути
-    SDL_Texture* LoadTexture(const std::string& filePath, SDL_Renderer* renderer);
+    // Установка базового пути к ресурсам
+    void SetBasePath(const std::string& path) {
+        basePath = path;
+    }
 
-    // Получение уже загруженной текстуры
-    SDL_Texture* GetTexture(const std::string& filePath);
+    // Загрузка текстуры по относительному пути
+    SDL_Texture* LoadTexture(const std::string& relativePath, SDL_Renderer* renderer);
 
-    // Очистка всех загруженных текстур
+    // Получение текстуры по относительному пути
+    SDL_Texture* GetTexture(const std::string& relativePath);
+
     void Clear();
 
 private:
-    TextureLoader() = default; // Приватный конструктор для одиночки
-    ~TextureLoader();          // Приватный деструктор
+    TextureLoader() = default;
+    ~TextureLoader();
 
-    // Карта для хранения загруженных текстур
     std::unordered_map<std::string, SDL_Texture*> textureMap;
+    std::string basePath;
 
-    // Запрет на копирование и присваивание
     TextureLoader(const TextureLoader&) = delete;
     TextureLoader& operator=(const TextureLoader&) = delete;
 };

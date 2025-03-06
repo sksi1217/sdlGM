@@ -5,6 +5,6 @@
 
 class MovementComponent : public Component {
 public:
-    float Speed = 10.0f;                 // Скорость
-    float SlowFactor = 1.0f;            // Фактор замедления
+    float m_movementSpeed = 10.0f;                 // Скорость
+    float m_movementSpeedModifier = 1.0f; // Модификатор скорости (для эффектов)
 };

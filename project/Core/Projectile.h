@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../Core/Component.h"
+#include "../Core/EntityHeaders.h"
 #include <SDL.h>
 
 class Projectile : public GameObject {

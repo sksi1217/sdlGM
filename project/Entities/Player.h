@@ -2,7 +2,6 @@
 
 #include "../Core/Component.h"
 
-#include "../Utils/TextureLoader.h"
 #include "../Resources/ManagerGame.h"
 #include "../Core/Weapon.h"
 
@@ -15,7 +14,12 @@ public:
 
     void Draw(SDL_Renderer* renderer, const Camera& camera) override;
 
+protected:
+    void ResourceGathering(SDL_FPoint& posistionPlr);
+
 private:
+    float ElapsedTime = 0;
+
     void HandleWeaponInteraction(float deltaTime);
     void HandleMovement(const Uint8* keyboardState, SDL_FPoint& velocity, float deltaTime);
     void UpdateSpriteRow(const SDL_FPoint& velocity);

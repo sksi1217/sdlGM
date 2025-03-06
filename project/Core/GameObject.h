@@ -2,8 +2,8 @@
 #ifndef GAME_OBJECT_H
 #define GAME_OBJECT_H
 
-#include "../Core/Component.h"
 #include "../Utils/MathUtils.h"
+#include "../Core/Component.h"
 
 #include "Camera.h"
 

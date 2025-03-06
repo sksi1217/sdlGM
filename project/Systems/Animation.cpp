@@ -1,4 +1,5 @@
 ﻿#include "Animation.h"
+#include <iostream>
 
 Animation::Animation(int frameWidth, int frameHeight, int totalFrames, float timePerFrame)
     : FrameWidth(frameWidth),

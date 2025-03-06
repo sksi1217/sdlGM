@@ -11,9 +11,15 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	auto health = std::make_shared<HealthComponent>();
 	AddComponent(health);
 
+	auto attributes = std::make_shared<AttributesComponent>();
+	AddComponent(attributes);
+
+	auto combat = std::make_shared<CombatComponent>();
+	AddComponent(combat);
+
 	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
-	movement->Speed = 0;
+	movement->m_movementSpeed = 0;
 	AddComponent(movement);
 
 	// StateComponent: Активность и коллизии
@@ -34,7 +40,7 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 
 	// AnimationComponent: Настройка анимации
 	auto animation = std::make_shared<AnimationComponent>();
-	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->Speed * 0.2f));
+	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->m_movementSpeed * 0.2f));
 	AddComponent(animation);
 
 	// ColliderComponent
@@ -76,8 +82,8 @@ void Skelet::HandleMovement(float deltaTime) {
 	if (!transform || !movement || !physics) return;
 
 	// Обновление Velocity на основе направления движения
-	physics->Velocity.x = direction.x * movement->Speed;
-	physics->Velocity.y = direction.y * movement->Speed;
+	physics->Velocity.x = direction.x * movement->m_movementSpeed;
+	physics->Velocity.y = direction.y * movement->m_movementSpeed;
 
 	// Применение Velocity к позиции объекта
 	transform->Position.x += physics->Velocity.x * deltaTime;

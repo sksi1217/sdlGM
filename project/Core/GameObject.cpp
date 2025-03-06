@@ -3,6 +3,8 @@
 #include <algorithm>
 #include "../Components/MovementComponent.h"
 
+#include "../Core/EntityHeaders.h"
+
 // Обновление объекта
 void GameObject::Update(float deltaTime) {
     auto transform = GetComponent<TransformComponent>();
@@ -49,8 +51,8 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
 
     // Calculate the rotation point (in pixels after scaling)
     SDL_FPoint rotationCenter = {
-        transform->Origin.x * transform->Scale* cameraScale,
-        transform->Origin.y * transform->Scale* cameraScale
+        transform->Origin.x * transform->Scale * cameraScale,
+        transform->Origin.y * transform->Scale * cameraScale
     };
 
     // Drawing the texture
@@ -59,7 +61,7 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
 
     if (animationComponent->animation) {
         // Convert sourceRect to SDL_FRect
-        SDL_Rect frameRect = animationComponent->animation->GetCurrentFrameRectangle(animationComponent->SpriteRow);
+        SDL_Rect frameRect = animationComponent->animation->GetCurrentFrameRectangle(animationComponent->SpriteRow);      
 
         SDL_RenderCopyExF(renderer, render->Texture, &frameRect, &destRect, transform->Rotation, &rotationCenter, flip);
     }

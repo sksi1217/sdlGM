@@ -54,8 +54,8 @@ Game::Game(const char* title, int width, int height) {
 		return;
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (!renderer) {
+	ManagerGame::renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	if (!ManagerGame::renderer) {
 		std::cerr << "Failed to create renderer: " << SDL_GetError() << std::endl;
 		isRunning = false;
 		return;
@@ -65,7 +65,7 @@ Game::Game(const char* title, int width, int height) {
 // Destructor
 Game::~Game() {
 	std::cout << "Destroying renderer and window..." << std::endl;
-	SDL_DestroyRenderer(renderer);
+	SDL_DestroyRenderer(ManagerGame::renderer);
 	SDL_DestroyWindow(window);
 
 	std::cout << "Quitting SDL_image and SDL..." << std::endl;
@@ -76,13 +76,15 @@ Game::~Game() {
 
 // Initialization
 void Game::Initialize() {
-	// Создание текстуры через TextureLoader
-	TextureLoader& loader = TextureLoader::GetInstance();
+	// Установка базового пути к ресурсам
+	TextureLoader::GetInstance().SetBasePath("project/Resources/Textures");
 
-	SDL_Texture* boxTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/box.png", renderer);
+	// Создание текстуры через TextureLoader
+	// TextureLoader& loader = TextureLoader::GetInstance();
+	SDL_Texture* boxTexture = TextureLoader::GetInstance().LoadTexture("box.png", ManagerGame::renderer);
 
 	std::cout << "Initialized Weapons!" << std::endl;
-	weapon = std::make_shared<Weapon>(SDL_FPoint{ 0, 0 }, boxTexture);
+	weapon = std::make_shared<Weapon>(boxTexture);
 
 	std::cout << "Game initialized!" << std::endl;
 }
@@ -94,10 +96,9 @@ void Game::LoadContent() {
 	// Создание текстуры через TextureLoader
 	TextureLoader& loader = TextureLoader::GetInstance();
 
-	SDL_Texture* playerTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/player.png", renderer);
-	SDL_Texture* boxTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/box.png", renderer);
-	SDL_Texture* enemyTexture = loader.LoadTexture("D:/sdl/sdl2/project/Resources/Textures/enemy.png", renderer);
-
+	SDL_Texture* playerTexture = TextureLoader::GetInstance().LoadTexture("player.png", ManagerGame::renderer);
+	SDL_Texture* boxTexture = TextureLoader::GetInstance().LoadTexture("box.png", ManagerGame::renderer);
+	SDL_Texture* enemyTexture = TextureLoader::GetInstance().LoadTexture("enemy.png", ManagerGame::renderer);
 
 	// Создание игрока
 	player = std::make_shared<Player>(SDL_FPoint{ 0, 0 }, playerTexture);
@@ -106,21 +107,21 @@ void Game::LoadContent() {
 	
 
 	
-	enemy = std::make_shared<Skelet>(SDL_FPoint{ 50, 0 }, enemyTexture);
+	// enemy = std::make_shared<Skelet>(SDL_FPoint{ 50, 0 }, enemyTexture);
 	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 16, 16 }, enemyTexture);
-	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 60, 80 }, enemyTexture);
+	// enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 0, 64 }, enemyTexture);
 	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, enemyTexture);
 
 
-	ManagerGame::objects.push_back(enemy);
+	// ManagerGame::objects.push_back(enemy);
 	ManagerGame::objects.push_back(enemy1);
-	ManagerGame::objects.push_back(enemy2);
+	// ManagerGame::objects.push_back(enemy2);
 	ManagerGame::objects.push_back(enemy3);
 	
 
-	ManagerGame::enemies.push_back(enemy);
+	// ManagerGame::enemies.push_back(enemy);
 	ManagerGame::enemies.push_back(enemy1);
-	ManagerGame::enemies.push_back(enemy2);
+	// ManagerGame::enemies.push_back(enemy2);
 	ManagerGame::enemies.push_back(enemy3);
 
 
@@ -158,15 +159,15 @@ void Game::Update(float deltaTime)
 
 // Frame rendering
 void Game::Draw() {
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderClear(renderer);
+	SDL_SetRenderDrawColor(ManagerGame::renderer, 0, 0, 0, 255);
+	SDL_RenderClear(ManagerGame::renderer);
 
 	// Drawing of all objects
 	for (auto& obj : ManagerGame::objects) {
-		obj->Draw(renderer, camera);
+		obj->Draw(ManagerGame::renderer, camera);
 	}
 
-	SDL_RenderPresent(renderer);
+	SDL_RenderPresent(ManagerGame::renderer);
 }
 
 // Выгрузка ресурсов

@@ -11,9 +11,27 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	auto health = std::make_shared<HealthComponent>();
 	AddComponent(health);
 
+	auto attributes = std::make_shared<AttributesComponent>();
+	AddComponent(attributes);
+
+	auto combat = std::make_shared<CombatComponent>();
+	AddComponent(combat);
+
+	auto energy = std::make_shared<EnergyComponent>();
+	AddComponent(energy);
+
+	auto ability = std::make_shared<AbilityComponent>();
+	AddComponent(ability);
+
+	auto gathering = std::make_shared<ResourceGatheringComponent>();
+	AddComponent(gathering);
+
+	auto level = std::make_shared<LevelComponent>();
+	AddComponent(level);
+
 	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
-	movement->Speed = 50;
+	movement->m_movementSpeed = 50;
 	AddComponent(movement);
 
 	// StateComponent: Активность и коллизии
@@ -33,7 +51,7 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 
 	// AnimationComponent: Настройка анимации
 	auto animation = std::make_shared<AnimationComponent>();
-	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->Speed * 0.2f));
+	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->m_movementSpeed * 0.2f));
 	AddComponent(animation);
 
 	// ColliderComponent
@@ -52,6 +70,7 @@ void Player::Update(float deltaTime) {
 	auto transform = GetComponent<TransformComponent>();
 	auto movement = GetComponent<MovementComponent>();
 	auto physics = GetComponent<PhysicsComponent>();
+	auto healt = GetComponent<HealthComponent>();
 
 	if (!transform || !movement || !physics) return;
 
@@ -64,12 +83,20 @@ void Player::Update(float deltaTime) {
 
 	// Обновление позиции с учетом времени
 	transform->Position = MathUtils::Add(transform->Position,
-		MathUtils::Multiply(physics->Velocity, movement->Speed * deltaTime));;
+		MathUtils::Multiply(physics->Velocity, movement->m_movementSpeed * deltaTime));;
 
 	// Обновление коллайдера
 	if (collider) collider->UpdatePosition(transform->Position);
 
 	HandleWeaponInteraction(deltaTime);
+
+	healt->Update(deltaTime);
+
+	SDL_FPoint pos;
+	pos.x = transform->Position.x + collider->OffsetColliderX;
+	pos.y = transform->Position.y + collider->OffsetColliderY;
+
+	ResourceGathering(pos);
 
 	// Обновление анимации
 	bool isMoving = (physics->Velocity.x != 0.0f || physics->Velocity.y != 0.0f);
@@ -78,31 +105,59 @@ void Player::Update(float deltaTime) {
 	}
 }
 
-float ElapsedTime = 0;
+void Player::ResourceGathering(SDL_FPoint& playerPosition) {
+	auto gathering = GetComponent<ResourceGatheringComponent>();
+	auto level = GetComponent<LevelComponent>();
+
+	if (!gathering || !level) {
+		// std::cerr << "Error: Missing ResourceGatheringComponent or LevelComponent!" << std::endl;
+		return;
+	}
+
+	// Перебираем все объекты опыта
+	for (const auto& exp : ManagerGame::experience) {
+
+		// Получаем позицию опыта
+		auto transform = exp->GetComponent<TransformComponent>();
+		if (!transform) {
+			std::cerr << "Error: transform EXP!" << std::endl;
+			continue;
+		}
+
+		// Проверяем расстояние
+		if (gathering->IsWithinRange(playerPosition, transform->Position)) {
+
+			std::cout << "EXP++" << std::endl;
+			// Добавляем опыт персонажу
+			// level->AddExperience(experience->m_UpExperience);
+
+			// Удаляем объект опыта
+			// std::cout << "Picked up " << experience->m_UpExperience << " experience!" << std::endl;
+			// it = ManagerGame::experience.erase(it); // Удаляем из списка
+		}
+	}
+}
 
 void Player::HandleWeaponInteraction(float deltaTime) {
 	// Увеличиваем прошедшее время
 	ElapsedTime += deltaTime;
 
-	// Если не идёт залп и прошло достаточно времени для начала нового залпа
-	if (ElapsedTime >= 1) {
-		if (ManagerGame::_allWeapons.size() > 0) {
-			for (const auto& obj : ManagerGame::_allWeapons) { // Итерация по unique_ptr
-				if (!obj) continue; // Проверка на null-указатель
+	if (ManagerGame::_allWeapons.size() > 0) {
+		for (const auto& obj : ManagerGame::_allWeapons) { // Итерация по unique_ptr
+			if (!obj) continue; // Проверка на null-указатель
 
-				auto weapon = std::dynamic_pointer_cast<Weapon>(obj);
+			auto weapon = std::dynamic_pointer_cast<Weapon>(obj);
 
-				// Находим ближайшего врага
-				// weaponPtr->nearestEnemy = weaponPtr->FindNearestEnemy();
+			// Находим ближайшего врага
+			// weaponPtr->nearestEnemy = weaponPtr->FindNearestEnemy();
 
-				// Выполняем выстрел
-				if (weapon) {
-					// Вызываем метод Shoot, если объект — оружие
-					weapon->Shoot(this);
-				}
+			// Выполняем выстрел
+			if (weapon) {
+				// Вызываем метод Shoot, если объект — оружие
+				weapon->Shoot(this, deltaTime);
 			}
-			ElapsedTime = 0;
 		}
+		ElapsedTime = 0;
 	}
 }
 
@@ -142,5 +197,4 @@ void Player::Draw(SDL_Renderer* renderer, const Camera& camera)
 	auto healt = GetComponent<HealthComponent>();
 	if (!healt) return;
 	DrawHealthBar(renderer, healt->CurrentHealth, healt->MaxHealth, 10, 10, 100, 20);
-
 }

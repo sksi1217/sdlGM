@@ -3,8 +3,8 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
-#include "../Core/GameObject.h"
 #include "../Resources/ManagerGame.h"
+#include "../Core/EntityHeaders.h"
 
 class CollisionSystem {
 public:
@@ -142,7 +142,10 @@ public:
 		if (weapon && weapon->m_remove_bullet) {
 			projectile->GetComponent<StateComponent>()->IsActive = false;
 		}
-		ApplyDamage(enemy, 10.0f); // Урон врагу
+
+		std::cout << weapon->CalculateDamage() <<  std::endl;
+
+		ApplyDamage(enemy, weapon->CalculateDamage()); // Урон врагу
 	}
 
 	// Обработка столкновений игрока и врага
@@ -157,16 +160,26 @@ public:
 	}
 
 	void ApplyDamage(GameObject* target, float damage) {
+		if (!target) {
+			std::cerr << "Error: Target is null!" << std::endl;
+			return;
+		}
+
 		auto health = target->GetComponent<HealthComponent>();
 		if (health) {
 			health->TakeDamage(damage);
-			if (health->CurrentHealth <= 0.0f) {
-				target->GetComponent<StateComponent>()->IsActive = false;
-				// Вызов OnDeath() если есть
-				if constexpr (std::is_base_of_v<GameObject, std::remove_pointer_t<decltype(target)>>) {
-					std::cout << "Dead!" << std::endl;
-					//target->OnDeath();
+
+			if (health->IsDead) { // Проверяем, умер ли объект
+				// Отключаем объект через StateComponent
+				if (auto state = target->GetComponent<StateComponent>()) {
+					state->IsActive = false; // Устанавливаем флаг неактивности
 				}
+				else {
+					std::cerr << "Error: StateComponent not found in target object!" << std::endl;
+				}
+
+				// Вызываем обработчик смерти
+				health->OnDeath(target);
 			}
 		}
 	}

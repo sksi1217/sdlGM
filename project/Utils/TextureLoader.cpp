@@ -1,27 +1,29 @@
 ﻿#include "TextureLoader.h"
 #include <iostream>
 
-// Статическая переменная для экземпляра TextureLoader
 TextureLoader& TextureLoader::GetInstance() {
     static TextureLoader instance;
     return instance;
 }
 
-// Конструктор
 TextureLoader::~TextureLoader() {
     Clear();
 }
 
-// Загрузка текстуры
-SDL_Texture* TextureLoader::LoadTexture(const std::string& filePath, SDL_Renderer* renderer) {
-    if (textureMap.find(filePath) != textureMap.end()) {
-        return textureMap[filePath]; // Возвращаем уже загруженную текстуру
+SDL_Texture* TextureLoader::LoadTexture(const std::string& relativePath, SDL_Renderer* renderer) {
+    // Формируем полный путь
+    fs::path fullPath = fs::path(basePath) / relativePath;
+    std::string full_path_str = fullPath.string();
+
+    // Проверяем, есть ли текстура уже загружена
+    if (textureMap.find(full_path_str) != textureMap.end()) {
+        return textureMap[full_path_str];
     }
 
     SDL_Texture* texture = nullptr;
-    SDL_Surface* surface = IMG_Load(filePath.c_str());
+    SDL_Surface* surface = IMG_Load(full_path_str.c_str());
     if (!surface) {
-        std::cerr << "Failed to load image: " << filePath << ". Error: " << IMG_GetError() << std::endl;
+        std::cerr << "Failed to load image: " << full_path_str << ". Error: " << IMG_GetError() << std::endl;
         return nullptr;
     }
 
@@ -33,18 +35,20 @@ SDL_Texture* TextureLoader::LoadTexture(const std::string& filePath, SDL_Rendere
     SDL_FreeSurface(surface);
 
     if (texture) {
-        textureMap[filePath] = texture; // Сохраняем текстуру в мапе
+        textureMap[full_path_str] = texture;
     }
 
     return texture;
 }
 
-// Получение текстуры
-SDL_Texture* TextureLoader::GetTexture(const std::string& filePath) {
-    return textureMap[filePath];
+SDL_Texture* TextureLoader::GetTexture(const std::string& relativePath) {
+    fs::path fullPath = fs::path(basePath) / relativePath;
+    std::string full_path_str = fullPath.string();
+
+    auto it = textureMap.find(full_path_str);
+    return it != textureMap.end() ? it->second : nullptr;
 }
 
-// Очистка текстур
 void TextureLoader::Clear() {
     for (auto& pair : textureMap) {
         SDL_DestroyTexture(pair.second);
