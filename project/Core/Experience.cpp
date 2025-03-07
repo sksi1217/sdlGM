@@ -8,6 +8,13 @@ Experience::Experience(SDL_Texture* texture, const SDL_FPoint& position) {
     transform->Position = position;
     AddComponent(transform);
 
+    auto movement = std::make_shared<MovementComponent>();
+    movement->m_movementSpeed = 10;
+    AddComponent(movement);
+
+    auto physics = std::make_shared<PhysicsComponent>();
+    AddComponent(physics);
+
     auto collider = std::make_shared<ColliderComponent>();
     collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
     collider->OffsetColliderX = 0; // Смещение коллайдера по X
@@ -29,4 +36,45 @@ Experience::Experience(SDL_Texture* texture, const SDL_FPoint& position) {
     auto render = std::make_shared<RenderComponent>();
     render->Texture = texture;
     AddComponent(render);
+}
+
+void Experience::MoveTowards(SDL_FPoint playerTransform, float deltaTime)
+{
+    auto animationComponent = GetComponent<AnimationComponent>();
+    auto transform = GetComponent<TransformComponent>();
+    auto collider = GetComponent<ColliderComponent>();
+
+    if (!transform || !animationComponent || !collider) return;
+
+    direction = {
+        playerTransform.x - transform->Position.x,
+        playerTransform.y - transform->Position.y
+    };
+
+    direction = MathUtils::Normalize(direction);
+
+    HandleMovement(deltaTime);
+
+    bool isMoving = (direction.x != 0.0f || direction.y != 0.0f);
+    if (animationComponent && animationComponent->animation) animationComponent->animation->Update(isMoving, static_cast<Uint32>(deltaTime * 1000.0f));
+}
+
+void Experience::HandleMovement(float deltaTime) {
+    auto movement = GetComponent<MovementComponent>();
+    auto transform = GetComponent<TransformComponent>();
+    auto physics = GetComponent<PhysicsComponent>();
+    auto collider = GetComponent<ColliderComponent>();
+
+    if (!transform || !movement || !physics) return;
+
+    // Обновление Velocity на основе направления движения
+    physics->Velocity.x = direction.x * movement->m_movementSpeed;
+    physics->Velocity.y = direction.y * movement->m_movementSpeed;
+
+    // Применение Velocity к позиции объекта
+    transform->Position.x += physics->Velocity.x * deltaTime;
+    transform->Position.y += physics->Velocity.y * deltaTime;
+
+    // Обновление коллайдера
+    if (collider) collider->UpdatePosition(transform->Position);
 }

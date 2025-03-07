@@ -5,15 +5,17 @@
 class Skelet : public GameObject {
 public:
     // Конструктор с параметрами
-    Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture);
+    Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture, std::shared_ptr<TransformComponent> playerTransform);
 
     void Update(float deltaTime) override;
 
 private:
-    SDL_FPoint direction ;
-    SDL_FPoint targetPosition = { 1000, 1000 };
+    SDL_FPoint direction = { 0, 0 };
+    SDL_FPoint targetPosition = { 0, 0 };
 
     void HandleMovement(float deltaTime);
+
+    std::shared_ptr<TransformComponent> playerTransform;
 
     enum Direction {
         DownRow = 1,

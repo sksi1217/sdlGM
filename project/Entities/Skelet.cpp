@@ -2,7 +2,7 @@
 #include <iostream>
 
 // Инициальзация
-Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
+Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture, std::shared_ptr<TransformComponent> playerTransform): playerTransform(playerTransform) {
 	// TransformComponent: Начальная позиция и масштаб
 	auto transform = std::make_shared<TransformComponent>();
 	transform->Position = startPosition;
@@ -19,7 +19,7 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 
 	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
-	movement->m_movementSpeed = 0;
+	movement->m_movementSpeed = 20;
 	AddComponent(movement);
 
 	// StateComponent: Активность и коллизии
@@ -59,7 +59,13 @@ void Skelet::Update(float deltaTime) {
 	auto collider = GetComponent<ColliderComponent>();
 	auto healt = GetComponent<HealthComponent>();
 	
-	direction = { targetPosition.x - transform->Position.x, targetPosition.y - transform->Position.y };
+	if (!transform || !playerTransform || !animationComponent || !collider || !healt) return;
+
+	direction = { 
+		playerTransform->Position.x - transform->Position.x,
+		playerTransform->Position.y - transform->Position.y 
+	};
+
 	direction = MathUtils::Normalize(direction);
 
 	if (std::abs(direction.x) > std::abs(direction.y)) animationComponent->SpriteRow = (direction.x > 0 ? RightRow : LeftRow);

@@ -9,4 +9,10 @@ public:
 
     int m_UpExperience = 10; // Количество опыта
 
+	void MoveTowards(SDL_FPoint playerTransform, float deltaTime);
+	void HandleMovement(float deltaTime);
+
+private:
+	SDL_FPoint direction = { 0, 0 };
+	SDL_FPoint targetPosition = { 0, 0 };
 };

@@ -80,7 +80,6 @@ void Game::Initialize() {
 	TextureLoader::GetInstance().SetBasePath("project/Resources/Textures");
 
 	// Создание текстуры через TextureLoader
-	// TextureLoader& loader = TextureLoader::GetInstance();
 	SDL_Texture* boxTexture = TextureLoader::GetInstance().LoadTexture("box.png", ManagerGame::renderer);
 
 	std::cout << "Initialized Weapons!" << std::endl;
@@ -94,8 +93,6 @@ void Game::LoadContent() {
 	std::cout << "Loading content..." << std::endl;
 
 	// Создание текстуры через TextureLoader
-	TextureLoader& loader = TextureLoader::GetInstance();
-
 	SDL_Texture* playerTexture = TextureLoader::GetInstance().LoadTexture("player.png", ManagerGame::renderer);
 	SDL_Texture* boxTexture = TextureLoader::GetInstance().LoadTexture("box.png", ManagerGame::renderer);
 	SDL_Texture* enemyTexture = TextureLoader::GetInstance().LoadTexture("enemy.png", ManagerGame::renderer);
@@ -105,23 +102,23 @@ void Game::LoadContent() {
 	ManagerGame::objects.push_back(player);
 
 	
-
+	auto playerTransform = player->GetComponent<TransformComponent>();
 	
-	// enemy = std::make_shared<Skelet>(SDL_FPoint{ 50, 0 }, enemyTexture);
-	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 16, 16 }, enemyTexture);
-	// enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 0, 64 }, enemyTexture);
-	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, enemyTexture);
+	enemy = std::make_shared<Skelet>(SDL_FPoint{ 50, 0 }, enemyTexture, playerTransform);
+	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 16, 16 }, enemyTexture, playerTransform);
+	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 0, 64 }, enemyTexture, playerTransform);
+	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, enemyTexture, playerTransform);
 
 
-	// ManagerGame::objects.push_back(enemy);
+	ManagerGame::objects.push_back(enemy);
 	ManagerGame::objects.push_back(enemy1);
-	// ManagerGame::objects.push_back(enemy2);
+	ManagerGame::objects.push_back(enemy2);
 	ManagerGame::objects.push_back(enemy3);
 	
 
-	// ManagerGame::enemies.push_back(enemy);
+	ManagerGame::enemies.push_back(enemy);
 	ManagerGame::enemies.push_back(enemy1);
-	// ManagerGame::enemies.push_back(enemy2);
+	ManagerGame::enemies.push_back(enemy2);
 	ManagerGame::enemies.push_back(enemy3);
 
 
@@ -148,9 +145,6 @@ void Game::Update(float deltaTime)
 			++i; // Переходим к следующему объекту
 		}
 	}
-
-	// std::cout << "objects " << ManagerGame::objects.size() << std::endl;
-	// std::cout << "enemies " << ManagerGame::enemies.size() << std::endl;
 
 	сollisionSystem.Update();
 

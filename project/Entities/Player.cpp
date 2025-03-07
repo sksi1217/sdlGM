@@ -96,7 +96,7 @@ void Player::Update(float deltaTime) {
 	pos.x = transform->Position.x + collider->OffsetColliderX;
 	pos.y = transform->Position.y + collider->OffsetColliderY;
 
-	ResourceGathering(pos);
+	ResourceGathering(pos, deltaTime);
 
 	// Обновление анимации
 	bool isMoving = (physics->Velocity.x != 0.0f || physics->Velocity.y != 0.0f);
@@ -105,35 +105,52 @@ void Player::Update(float deltaTime) {
 	}
 }
 
-void Player::ResourceGathering(SDL_FPoint& playerPosition) {
+void Player::ResourceGathering(SDL_FPoint& playerPosition, float deltaTime) {
+	// 1. Получаем необходимые компоненты
 	auto gathering = GetComponent<ResourceGatheringComponent>();
 	auto level = GetComponent<LevelComponent>();
+	auto transform = GetComponent<TransformComponent>();
+	auto collider = GetComponent<ColliderComponent>();
 
-	if (!gathering || !level) {
-		// std::cerr << "Error: Missing ResourceGatheringComponent or LevelComponent!" << std::endl;
-		return;
-	}
+	if (collider) collider->UpdatePosition(transform->Position);
 
-	// Перебираем все объекты опыта
-	for (const auto& exp : ManagerGame::experience) {
+	// 2. Проверяем обязательные компоненты
+	if (!gathering || !level || !transform) return;
 
-		// Получаем позицию опыта
-		auto transform = exp->GetComponent<TransformComponent>();
-		if (!transform) {
-			std::cerr << "Error: transform EXP!" << std::endl;
-			continue;
-		}
+	// 3. Получаем позицию с учетом коллайдера
+	SDL_FPoint colliderPos = {
+		transform->Position.x + collider->OffsetColliderX,
+		transform->Position.y + collider->OffsetColliderY
+	};
 
-		// Проверяем расстояние
-		if (gathering->IsWithinRange(playerPosition, transform->Position)) {
+	// 4. Обрабатываем каждый объект опыта
+	for (const auto& obj : ManagerGame::experience) {
+		auto exp = std::dynamic_pointer_cast<Experience>(obj);
+		if (!exp) continue;
 
-			std::cout << "EXP++" << std::endl;
-			// Добавляем опыт персонажу
-			// level->AddExperience(experience->m_UpExperience);
+		auto expState = exp->GetComponent<StateComponent>();
+		auto expTransform = exp->GetComponent<TransformComponent>();
 
-			// Удаляем объект опыта
-			// std::cout << "Picked up " << experience->m_UpExperience << " experience!" << std::endl;
-			// it = ManagerGame::experience.erase(it); // Удаляем из списка
+		// Пропускаем неактивные/неподходящие объекты
+		if (!expState || !expState->IsActive || !expTransform) continue;
+
+		// 5. Проверяем дистанцию
+		float distance = gathering->IsWithinRange(colliderPos, expTransform->Position);
+		float gatherRadius = gathering->GetGatherRadius();
+		float sucklingRadius = gathering->GetSucklingRadius();
+
+		// 6. Логика взаимодействия
+		if (distance <= sucklingRadius) {
+			if (distance <= gatherRadius) {
+				// Подбор опыта
+				level->AddExperience(exp->m_UpExperience);
+				expState->IsActive = false;
+				std::cout << "Picked up " << exp->m_UpExperience << " experience!" << std::endl;
+			}
+			else {
+				// Движение опыта к игроку
+				exp->MoveTowards(colliderPos, deltaTime);
+			}
 		}
 	}
 }
@@ -195,6 +212,9 @@ void Player::Draw(SDL_Renderer* renderer, const Camera& camera)
 	GameObject::Draw(renderer, camera);
 
 	auto healt = GetComponent<HealthComponent>();
+	auto lvl = GetComponent<LevelComponent>();
+
 	if (!healt) return;
 	DrawHealthBar(renderer, healt->CurrentHealth, healt->MaxHealth, 10, 10, 100, 20);
+	DrawExperienceBar(renderer, lvl->GetExperience(), lvl->GetExperienceToNextLevel(), 10, 40, 100, 20);
 }

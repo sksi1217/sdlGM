@@ -49,6 +49,24 @@ public:
         SDL_RenderDrawRect(renderer, &background);
     }
 
+    void DrawExperienceBar(SDL_Renderer* renderer, float currentHealth, float maxHealth, int x, int y, int width, int height) {
+        // Цвет фона полосы (серый)
+        SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+        SDL_Rect background = { x, y, width, height };
+        SDL_RenderFillRect(renderer, &background);
+
+        // Цвет текущего здоровья (зеленый)
+        float healthRatio = currentHealth / maxHealth;
+        int healthWidth = static_cast<int>(width * healthRatio);
+        SDL_Rect health = { x, y, healthWidth, height };
+        SDL_SetRenderDrawColor(renderer, 53, 124, 255, 255);
+        SDL_RenderFillRect(renderer, &health);
+
+        // Опциональная рамка
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderDrawRect(renderer, &background);
+    }
+
 private:
     // Функция для отрисовки круга
     void RenderCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius, float cameraScale, const Camera& camera) {

@@ -21,7 +21,7 @@ void Weapon::Shoot(Player* player, float deltaTime) {
 
 	m_nearestEnemy = FindNearestEnemy(player);
 
-	if (!textere || !m_nearestEnemy) { std::cerr << "Error texture bullet!\nOr Not Nearest Enemy" << std::endl; return; }
+	if (!textere || !m_nearestEnemy) { return; }
 
 	// Увеличиваем прошедшее время
 	weapon->m_elapsedTime += deltaTime;

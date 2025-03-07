@@ -25,7 +25,14 @@ public:
 
 		if ((colliderA->m_layer == ColliderComponent::Layer::BulletNoCollider && colliderB->m_layer == ColliderComponent::Layer::Enemy) ||
 			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::BulletNoCollider)) {
-			return false; // Игрок и пуля не сталкиваются
+			return false; // Враг и пуля не сталкиваются
+		}
+
+		if ((colliderA->m_layer == ColliderComponent::Layer::Player && colliderB->m_layer == ColliderComponent::Layer::Item) ||
+			(colliderA->m_layer == ColliderComponent::Layer::Item && colliderB->m_layer == ColliderComponent::Layer::Player) ||
+			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::Item)  ||
+			(colliderA->m_layer == ColliderComponent::Layer::Item && colliderB->m_layer == ColliderComponent::Layer::Item)) {
+			return false; // Item и игрок не сталкиваются
 		}
 
 		return true; // По умолчанию сталкиваются

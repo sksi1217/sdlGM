@@ -15,7 +15,7 @@ public:
     void Draw(SDL_Renderer* renderer, const Camera& camera) override;
 
 protected:
-    void ResourceGathering(SDL_FPoint& posistionPlr);
+    void ResourceGathering(SDL_FPoint& posistionPlr, float deltaTime);
 
 private:
     float ElapsedTime = 0;
