@@ -4,7 +4,7 @@
 
 class Camera {
 public:
-    Camera(SDL_FPoint Size, float speed);
+    Camera(SDL_FPoint Size);
     void UpdateCamera(SDL_FPoint& playerPosition, float deltaTime);
     void ZoomIn();
     void ZoomOut();

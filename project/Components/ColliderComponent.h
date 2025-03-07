@@ -21,19 +21,23 @@ public:
         Trigger = 11       // Триггеры (например, зона спавна)
     };
 
-    SDL_Rect Collider = { 0, 0, 1, 1 }; // Коллизия для прямоугольника
+    // Для всех
+    int OffsetColliderX = 0;          // Смещение коллизии по X
+    int OffsetColliderY = 0;          // Смещение коллизии по Y
+
+    // Для круга
     SDL_FPoint CircleCollider = { 0.0f, 0.0f }; // Коллизия для круга (центр)
     float CircleRadius = 1.0f; // Радиус круга
 
-    int OffsetColliderX = 0;          // Смещение коллизии по X
-    int OffsetColliderY = 0;          // Смещение коллизии по Y
+    // Для прямоугольника
+    SDL_Rect Collider = { 0, 0, 1, 1 }; // Коллизия для прямоугольника
     int WidthColliderX = 16;           // Ширина коллизии (для прямоугольника)
     int HeightColliderY = 16;          // Высота коллизии (для прямоугольника)
 
     ColliderType Type = ColliderType::RECTANGLE; // Тип коллайдера (по умолчанию прямоугольник)
-    Layer m_layer = Layer::Player; // Тип коллайдера (по умолчанию прямоугольник)
+    Layer m_layer = Layer::None;
 
-    // Установка типа коллайдера
+    // Установка типа коллайдера и слой
     void SetColliderType(ColliderType type) { Type = type; }
     void SetLayer(Layer layer) { m_layer = layer; }
 

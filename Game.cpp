@@ -17,7 +17,7 @@ std::shared_ptr<GameObject> enemy1;
 std::shared_ptr<GameObject> enemy2;
 std::shared_ptr<GameObject> enemy3;
 
-Camera camera = { {800, 600}, 5 };
+Camera camera = { {SCREEN_WIDTH, SCREEN_HEIGHT} };
 
 std::shared_ptr<GameObject> weapon;
 
@@ -77,10 +77,11 @@ Game::~Game() {
 // Initialization
 void Game::Initialize() {
 	// Установка базового пути к ресурсам
-	TextureLoader::GetInstance().SetBasePath("project/Resources/Textures");
+	TextureLoader& textureLoader = TextureLoader::GetInstance();
+	textureLoader.SetBasePath("project/Resources/Textures");
 
 	// Создание текстуры через TextureLoader
-	SDL_Texture* boxTexture = TextureLoader::GetInstance().LoadTexture("box.png", ManagerGame::renderer);
+	SDL_Texture* boxTexture = TextureLoader::GetInstance().LoadTexture("Atlas.png", ManagerGame::renderer);
 
 	std::cout << "Initialized Weapons!" << std::endl;
 	weapon = std::make_shared<Weapon>(boxTexture);
@@ -95,7 +96,7 @@ void Game::LoadContent() {
 	// Создание текстуры через TextureLoader
 	SDL_Texture* playerTexture = TextureLoader::GetInstance().LoadTexture("player.png", ManagerGame::renderer);
 	SDL_Texture* boxTexture = TextureLoader::GetInstance().LoadTexture("box.png", ManagerGame::renderer);
-	SDL_Texture* enemyTexture = TextureLoader::GetInstance().LoadTexture("enemy.png", ManagerGame::renderer);
+	SDL_Texture* enemyTexture = TextureLoader::GetInstance().LoadTexture("skelet.png", ManagerGame::renderer);
 
 	// Создание игрока
 	player = std::make_shared<Player>(SDL_FPoint{ 0, 0 }, playerTexture);
@@ -153,7 +154,7 @@ void Game::Update(float deltaTime)
 
 // Frame rendering
 void Game::Draw() {
-	SDL_SetRenderDrawColor(ManagerGame::renderer, 0, 0, 0, 255);
+	SDL_SetRenderDrawColor(ManagerGame::renderer, 50, 50, 50, 255);
 	SDL_RenderClear(ManagerGame::renderer);
 
 	// Drawing of all objects

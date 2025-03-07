@@ -161,7 +161,6 @@
     <ClCompile Include="project\Entities\Player.cpp" />
     <ClCompile Include="project\Entities\Skelet.cpp" />
     <ClCompile Include="project\Resources\ManagerGame.cpp" />
-    <ClCompile Include="project\Resources\TextureLoader.cpp" />
     <ClCompile Include="project\Systems\Animation.cpp" />
     <ClCompile Include="project\Systems\CollisionSystem.cpp" />
     <ClCompile Include="project\Utils\MathUtils.cpp" />
@@ -172,15 +171,15 @@
     <ClInclude Include="project\Components\AnimationComponent.h" />
     <ClInclude Include="project\Components\AttributesComponent.h" />
     <ClInclude Include="project\Components\ColliderComponent.h" />
-    <ClInclude Include="project\Components\CombatComponent.h" />
     <ClInclude Include="project\Components\EffectComponent.h" />
-    <ClInclude Include="project\Components\EnergyComponent.h" />
+    <ClInclude Include="project\Components\EnemyDamageComponent.h" />
     <ClInclude Include="project\Components\EntityHeaders.h" />
     <ClInclude Include="project\Components\HealthComponent.h" />
     <ClInclude Include="project\Components\AbilityComponent.h" />
     <ClInclude Include="project\Components\LevelComponent.h" />
     <ClInclude Include="project\Components\MovementComponent.h" />
     <ClInclude Include="project\Components\PhysicsComponent.h" />
+    <ClInclude Include="project\Components\ProjectileComponent.h" />
     <ClInclude Include="project\Components\RenderComponent.h" />
     <ClInclude Include="project\Components\ResourceGatheringComponent.h" />
     <ClInclude Include="project\Components\StateComponent.h" />

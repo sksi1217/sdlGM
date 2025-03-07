@@ -14,35 +14,35 @@ class Experience;
 
 class HealthComponent : public Component {
 public:
-    float CurrentHealth = 100.0f; // Текущее здоровье
-    float MaxHealth = 100.0f;     // Максимальное здоровье
-    float RegenRate = 1.0f;       // Скорость регенерации здоровья
-    float InvincibilityTime = 0.0f; // Время неуязвимости после получения урона
-    float RemainingInvincibility = 0.0f; // Оставшееся время неуязвимости
+    float m_currentHealth = 100.0f; // Текущее здоровье
+    float m_maxHealth = 100.0f;     // Максимальное здоровье
+    float m_regenRate = 1.0f;       // Скорость регенерации здоровья
+    float m_invincibilityTime = 0.0f; // Время неуязвимости после получения урона
+    float m_remainingInvincibility = 0.0f; // Оставшееся время неуязвимости
     bool IsDead = false;          // Флаг смерти
 
     // Нанести урон объекту
     void TakeDamage(float damage) {
-        if (RemainingInvincibility > 0.0f) return; // Неуязвим во время инвулNERA
-        CurrentHealth = std::max(0.0f, CurrentHealth - damage);
-        RemainingInvincibility = InvincibilityTime;
+        if (m_remainingInvincibility > 0.0f) return; // Неуязвим во время инвулNERA
+        m_currentHealth = std::max(0.0f, m_currentHealth - damage);
+        m_remainingInvincibility = m_invincibilityTime;
 
-        if (CurrentHealth <= 0.0f) {
+        if (m_currentHealth <= 0.0f) {
             IsDead = true; // Устанавливаем флаг смерти
         }
     }
 
     // Регенерация здоровья
     void RegenerateHealth(float deltaTime) {
-        if (CurrentHealth < MaxHealth) {
-            CurrentHealth = std::min(MaxHealth, CurrentHealth + RegenRate * deltaTime);
+        if (m_currentHealth < m_maxHealth) {
+            m_currentHealth = std::min(m_maxHealth, m_currentHealth + m_regenRate * deltaTime);
         }
     }
 
     // Обновление состояния компонента
     void Update(float deltaTime) {
-        if (RemainingInvincibility > 0.0f) {
-            RemainingInvincibility -= deltaTime;
+        if (m_remainingInvincibility > 0.0f) {
+            m_remainingInvincibility -= deltaTime;
         }
         RegenerateHealth(deltaTime);
     }
@@ -70,7 +70,7 @@ public:
         }
 
         // Загружаем текстуру опыта через TextureLoader
-        SDL_Texture* experienceTexture = TextureLoader::GetInstance().LoadTexture("mana.png", ManagerGame::renderer);
+        SDL_Texture* experienceTexture = TextureLoader::GetInstance().LoadTexture("Atlas.png", ManagerGame::renderer);
 
         if (!experienceTexture) {
             std::cerr << "Failed to load experience texture!" << std::endl;

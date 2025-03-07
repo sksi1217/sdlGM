@@ -9,7 +9,7 @@ Experience::Experience(SDL_Texture* texture, const SDL_FPoint& position) {
     AddComponent(transform);
 
     auto movement = std::make_shared<MovementComponent>();
-    movement->m_movementSpeed = 10;
+    movement->m_movementSpeed = 50;
     AddComponent(movement);
 
     auto physics = std::make_shared<PhysicsComponent>();
@@ -27,15 +27,17 @@ Experience::Experience(SDL_Texture* texture, const SDL_FPoint& position) {
     auto state = std::make_shared<StateComponent>();
     AddComponent(state);
 
+    // RenderComponent: Текстура опыта
+    auto render = std::make_shared<RenderComponent>();
+    render->Texture = texture;
+    AddComponent(render);
+
     // AnimationComponent: Настройка анимации
     auto animation = std::make_shared<AnimationComponent>();
     animation->animation = std::make_shared<Animation>(16, 16, 1, 1.0f);
     AddComponent(animation);
 
-    // RenderComponent: Текстура опыта
-    auto render = std::make_shared<RenderComponent>();
-    render->Texture = texture;
-    AddComponent(render);
+    
 }
 
 void Experience::MoveTowards(SDL_FPoint playerTransform, float deltaTime)
@@ -55,8 +57,7 @@ void Experience::MoveTowards(SDL_FPoint playerTransform, float deltaTime)
 
     HandleMovement(deltaTime);
 
-    bool isMoving = (direction.x != 0.0f || direction.y != 0.0f);
-    if (animationComponent && animationComponent->animation) animationComponent->animation->Update(isMoving, static_cast<Uint32>(deltaTime * 1000.0f));
+    if (animationComponent && animationComponent->animation) animationComponent->animation->Update(true, static_cast<Uint32>(deltaTime * 1000.0f));
 }
 
 void Experience::HandleMovement(float deltaTime) {

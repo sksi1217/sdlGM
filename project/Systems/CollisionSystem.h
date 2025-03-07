@@ -145,20 +145,25 @@ public:
 
 	// Обработка столкновений пули и врага
 	void HandleProjectileEnemyCollision(GameObject* projectile, GameObject* enemy) {
-		auto weapon = projectile->GetComponent<WeaponComponent>();
-		if (weapon && weapon->m_remove_bullet) {
+		auto bullet = projectile->GetComponent<ProjectileComponent>();
+		auto attributesEnemy = std::make_shared<AttributesComponent>();
+
+		if (bullet && bullet->m_remove_bullet) {
 			projectile->GetComponent<StateComponent>()->IsActive = false;
 		}
 
-		std::cout << weapon->CalculateDamage() <<  std::endl;
+		std::cout << bullet->CalculateDamage(attributesEnemy->GetArmorPenetration(), attributesEnemy->GetDodgeChance()) <<  std::endl;
 
-		ApplyDamage(enemy, weapon->CalculateDamage()); // Урон врагу
+		ApplyDamage(enemy, bullet->CalculateDamage(attributesEnemy->GetArmorPenetration(), attributesEnemy->GetDodgeChance())); // Урон врагу
 	}
 
 	// Обработка столкновений игрока и врага
 	void HandlePlayerEnemyCollision(GameObject* player, GameObject* enemy) {
-		ApplyDamage(player, 1.0f); // Урон игроку
-		ApplyDamage(enemy, 1.0f); // Урон врагу (опционально)
+		auto attributesPlayer = player->GetComponent<AttributesComponent>();
+		auto DamageEnemy = enemy->GetComponent<EnemyDamageComponent>();
+
+		ApplyDamage(player, DamageEnemy->CalculateDamage(attributesPlayer->GetArmorPenetration(), attributesPlayer->GetDodgeChance())); // Урон игроку
+		// ApplyDamage(enemy, 1.0f); // Урон врагу (опционально)
 	}
 
 	bool IsLayer(GameObject* obj, ColliderComponent::Layer layer) {

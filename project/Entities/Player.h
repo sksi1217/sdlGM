@@ -16,9 +16,10 @@ public:
 
 protected:
     void ResourceGathering(SDL_FPoint& posistionPlr, float deltaTime);
-
+    void UpdateAttributeEffects();
+    void ResetAttributeEffects();
 private:
-    float ElapsedTime = 0;
+    // float ElapsedTime = 0;
 
     void HandleWeaponInteraction(float deltaTime);
     void HandleMovement(const Uint8* keyboardState, SDL_FPoint& velocity, float deltaTime);

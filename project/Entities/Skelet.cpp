@@ -14,9 +14,6 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture, std::share
 	auto attributes = std::make_shared<AttributesComponent>();
 	AddComponent(attributes);
 
-	auto combat = std::make_shared<CombatComponent>();
-	AddComponent(combat);
-
 	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
 	movement->m_movementSpeed = 20;
@@ -42,6 +39,9 @@ Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture, std::share
 	auto animation = std::make_shared<AnimationComponent>();
 	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->m_movementSpeed * 0.2f));
 	AddComponent(animation);
+
+	auto enemyDamageComponent = std::make_shared<EnemyDamageComponent>();
+	AddComponent(enemyDamageComponent);
 
 	// ColliderComponent
 	auto collider = std::make_shared<ColliderComponent>();

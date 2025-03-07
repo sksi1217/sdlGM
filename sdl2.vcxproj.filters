@@ -14,6 +14,7 @@
     <ClCompile Include="project\Utils\TextureLoader.cpp" />
     <ClCompile Include="project\Core\Weapon.cpp" />
     <ClCompile Include="project\Core\Projectile.cpp" />
+    <ClCompile Include="project\Core\Experience.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
@@ -39,5 +40,14 @@
     <ClInclude Include="project\Core\Projectile.h" />
     <ClInclude Include="project\Components\WeaponComponent.h" />
     <ClInclude Include="project\Components\HealthComponent.h" />
+    <ClInclude Include="project\Components\AttributesComponent.h" />
+    <ClInclude Include="project\Components\EffectComponent.h" />
+    <ClInclude Include="project\Components\EntityHeaders.h" />
+    <ClInclude Include="project\Components\AbilityComponent.h" />
+    <ClInclude Include="project\Components\LevelComponent.h" />
+    <ClInclude Include="project\Components\ResourceGatheringComponent.h" />
+    <ClInclude Include="project\Core\Experience.h" />
+    <ClInclude Include="project\Components\ProjectileComponent.h" />
+    <ClInclude Include="project\Components\EnemyDamageComponent.h" />
   </ItemGroup>
 </Project>

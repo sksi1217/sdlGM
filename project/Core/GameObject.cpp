@@ -59,7 +59,7 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
     SDL_SetTextureColorMod(render->Texture, render->TintColor.r, render->TintColor.g, render->TintColor.b);
     SDL_SetTextureAlphaMod(render->Texture, render->TintColor.a);
 
-    if (animationComponent->animation) {
+    if (animationComponent) {
         // Convert sourceRect to SDL_FRect
         SDL_Rect frameRect = animationComponent->animation->GetCurrentFrameRectangle(animationComponent->SpriteRow);      
 
@@ -69,6 +69,7 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
         SDL_RenderCopyExF(renderer, render->Texture, nullptr, &destRect, transform->Rotation, &rotationCenter, flip);
     }
 
+    /*
     // Отрисовка Коллайдера
     if (state->IsCollidable && collider) {
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Зеленый цвет для коллайдера
@@ -118,4 +119,5 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
         int screenY = static_cast<int>((y - camera.GetPosition().y) * cameraScale); // Преобразуем мировые координаты в экранные
         SDL_RenderDrawLine(renderer, 0, screenY, 800, screenY); // Рисуем линию по всей ширине экрана
     }
+    */
 }

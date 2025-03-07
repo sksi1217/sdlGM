@@ -7,7 +7,7 @@ class Experience : public GameObject {
 public:
     Experience(SDL_Texture* texture, const SDL_FPoint& position);
 
-    int m_UpExperience = 10; // Количество опыта
+    int m_UpExperience = 50; // Количество опыта
 
 	void MoveTowards(SDL_FPoint playerTransform, float deltaTime);
 	void HandleMovement(float deltaTime);

@@ -1,15 +1,15 @@
 ﻿// Camera.cpp
 #include "Camera.h"
 
-Camera::Camera(SDL_FPoint Size, float speed)
-    : Position{ 0.0f, 0.0f }, Size{ Size.x, Size.y }, smoothSpeed(speed), scale(5.0f) {
+Camera::Camera(SDL_FPoint Size)
+    : Position{ 0.0f, 0.0f }, Size{ Size.x, Size.y }, scale(4.5f) {
 }
 
 void Camera::UpdateCamera(SDL_FPoint& playerPosition, float deltaTime) {
     float targetX = playerPosition.x - (Size.x / 2) / scale;
     float targetY = playerPosition.y - (Size.y / 2) / scale;
-    Position.x += (targetX - Position.x) * smoothSpeed * deltaTime;
-    Position.y += (targetY - Position.y) * smoothSpeed * deltaTime;
+    Position.x += (targetX - Position.x);
+    Position.y += (targetY - Position.y);
 }
 
 void Camera::ZoomIn() {
