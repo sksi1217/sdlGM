@@ -12,10 +12,12 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 
 std::shared_ptr<GameObject> player;
+/*
 std::shared_ptr<GameObject> enemy;
 std::shared_ptr<GameObject> enemy1;
 std::shared_ptr<GameObject> enemy2;
 std::shared_ptr<GameObject> enemy3;
+*/
 
 Camera camera = { {SCREEN_WIDTH, SCREEN_HEIGHT} };
 
@@ -105,25 +107,6 @@ void Game::LoadContent() {
 	
 	auto playerTransform = player->GetComponent<TransformComponent>();
 	
-	enemy = std::make_shared<Skelet>(SDL_FPoint{ 50, 0 }, enemyTexture, playerTransform);
-	enemy1 = std::make_shared<Skelet>(SDL_FPoint{ 16, 16 }, enemyTexture, playerTransform);
-	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 0, 64 }, enemyTexture, playerTransform);
-	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, enemyTexture, playerTransform);
-
-	/*
-	ManagerGame::objects.push_back(enemy);
-	ManagerGame::objects.push_back(enemy1);
-	ManagerGame::objects.push_back(enemy2);
-	ManagerGame::objects.push_back(enemy3);
-	
-
-	ManagerGame::enemies.push_back(enemy);
-	ManagerGame::enemies.push_back(enemy1);
-	ManagerGame::enemies.push_back(enemy2);
-	ManagerGame::enemies.push_back(enemy3);
-	*/
-
-
 	ManagerGame::_allWeapons.push_back(weapon);
 }
 
@@ -133,7 +116,7 @@ void Game::Update(float deltaTime)
 	pacingSystem.Update(deltaTime);
 
 	if (pacingSystem.shouldSpawnWave()) {
-		spawnWave(pacingSystem.enemiesPerWave);
+		spawnWave();
 		pacingSystem.resetTimer();
 	}
 
@@ -244,18 +227,56 @@ SDL_Rect Game::generateSpawnPoint() const {
 	return spawnPoint;
 }
 
-void Game::spawnWave(int count) {
-	SDL_Texture* enemyTexture = TextureLoader::GetInstance().LoadTexture("skelet.png", ManagerGame::renderer);
+void Game::spawnWave() {
+	const auto& phase = pacingSystem.getCurrentPhase();
+
 	auto playerTransform = player->GetComponent<TransformComponent>();
 
-	for (int i = 0; i < count; ++i) {
+	// Спавн обычных врагов
+	for (int i = 0; i < phase.commonEnemies; ++i) {
+		SDL_Texture* skeletTexture = TextureLoader::GetInstance().LoadTexture("skelet.png", ManagerGame::renderer);
+
 		SDL_Rect pos = generateSpawnPoint();
+
 		auto enemy = std::make_shared<Skelet>(
 			SDL_FPoint{ static_cast<float>(pos.x), static_cast<float>(pos.y) },
-			enemyTexture,
+			skeletTexture,
 			playerTransform
 		);
+
 		ManagerGame::objects.push_back(enemy);
 		ManagerGame::enemies.push_back(enemy);
+	}
+
+	// Спавн тяжелых врагов
+	for (int i = 0; i < phase.heavyEnemies; ++i) {
+		SDL_Texture* goblinTexture = TextureLoader::GetInstance().LoadTexture("goblin.png", ManagerGame::renderer);
+
+		SDL_Rect pos = generateSpawnPoint();
+
+		auto heavy = std::make_shared<Skelet>(
+			SDL_FPoint{ static_cast<float>(pos.x), static_cast<float>(pos.y) },
+			goblinTexture,
+			playerTransform
+		);
+
+		ManagerGame::objects.push_back(heavy);
+		ManagerGame::enemies.push_back(heavy);
+	}
+
+	// Спавн босса
+	if (phase.spawnBoss) {
+		SDL_Texture* bossTexture = TextureLoader::GetInstance().LoadTexture("boss.png", ManagerGame::renderer);
+
+		SDL_Rect pos = generateSpawnPoint();
+
+		auto boss = std::make_shared<Skelet>(
+			SDL_FPoint{ static_cast<float>(pos.x), static_cast<float>(pos.y) },
+			bossTexture,
+			playerTransform
+		);
+
+		ManagerGame::objects.push_back(boss);
+		ManagerGame::enemies.push_back(boss);
 	}
 }

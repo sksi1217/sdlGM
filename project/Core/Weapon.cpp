@@ -13,10 +13,10 @@ Weapon::Weapon(SDL_Texture* texture) {
 
 	// Weapon Component
 	auto weapon = std::make_shared<WeaponComponent>();
-	weapon->m_shells = 5;
+	weapon->m_shells = 0;
 
 	weapon->m_fireRate = 1;
-	weapon->m_bulletInterval = 0.4;
+	weapon->m_bulletInterval = 0.1;
 
 	weapon->m_damage = 60;
 	weapon->m_criticalChance = 0.5;

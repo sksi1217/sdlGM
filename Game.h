@@ -20,36 +20,56 @@ public:
     // Main Game Cycle
     void Run();
 
-
-    
-
 private:
     struct PacingSystem {
-        float timeSinceLastWave = 0.0f;
-        float waveInterval = 5.0f; // Начальный интервал между волнами
-        int enemiesPerWave = 3;    // Начальное количество врагов
         float gameTime = 0.0f;
+        int currentPhase = 0;
+        float timeSinceLastWave = 0.0f;
+
+        struct PhaseConfig {
+            int phase;
+            float minTime;      // Время начала фазы
+            int commonEnemies;  // Количество обычных врагов в волне
+            int heavyEnemies;   // Количество тяжелых врагов
+            bool spawnBoss;     // Спавнить ли босса в этой фазе
+            float waveInterval; // Интервал между волнами
+        };
+
+        // Таблица фаз (настройте под себя!)
+        std::vector<PhaseConfig> phases = {
+            {0, 0.0f,   3, 0, false, 5.0f},   // Фаза 0: Только обычные враги
+            {1, 30.0f,  4, 1, false, 4.0f},   // Фаза 1: Добавлены тяжелые враги
+            {2, 60.0f,  5, 2, true,  3.0f}    // Фаза 2: Босс каждые 3 секунды
+        };
 
         void Update(float deltaTime) {
             gameTime += deltaTime;
             timeSinceLastWave += deltaTime;
 
-            // Пример нарастающей сложности
-            waveInterval = std::max(1.0f, 5.0f - gameTime * 0.1f);
-            enemiesPerWave = 3 + static_cast<int>(gameTime * 0.5f);
+            // Определение текущей фазы
+            for (const auto& phase : phases) {
+                if (gameTime >= phase.minTime) {
+                    currentPhase = phase.phase;
+                }
+            }
         }
 
         bool shouldSpawnWave() const {
-            return timeSinceLastWave >= waveInterval;
+            return timeSinceLastWave >= phases[currentPhase].waveInterval;
         }
 
         void resetTimer() {
             timeSinceLastWave = 0.0f;
         }
+
+        const PhaseConfig& getCurrentPhase() const {
+            return phases[currentPhase];
+        }
     };
 
+
     PacingSystem pacingSystem;
-    void spawnWave(int count);
+    void spawnWave();
     SDL_Rect generateSpawnPoint() const;
 
     bool isRunning = true;
