@@ -20,7 +20,38 @@ public:
     // Main Game Cycle
     void Run();
 
+
+    
+
 private:
+    struct PacingSystem {
+        float timeSinceLastWave = 0.0f;
+        float waveInterval = 5.0f; // Начальный интервал между волнами
+        int enemiesPerWave = 3;    // Начальное количество врагов
+        float gameTime = 0.0f;
+
+        void Update(float deltaTime) {
+            gameTime += deltaTime;
+            timeSinceLastWave += deltaTime;
+
+            // Пример нарастающей сложности
+            waveInterval = std::max(1.0f, 5.0f - gameTime * 0.1f);
+            enemiesPerWave = 3 + static_cast<int>(gameTime * 0.5f);
+        }
+
+        bool shouldSpawnWave() const {
+            return timeSinceLastWave >= waveInterval;
+        }
+
+        void resetTimer() {
+            timeSinceLastWave = 0.0f;
+        }
+    };
+
+    PacingSystem pacingSystem;
+    void spawnWave(int count);
+    SDL_Rect generateSpawnPoint() const;
+
     bool isRunning = true;
     SDL_Window* window = nullptr;
     // SDL_Renderer* renderer = nullptr;

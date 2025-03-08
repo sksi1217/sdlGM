@@ -57,7 +57,7 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	collider->m_layer = ColliderComponent::Layer::Player;
 	AddComponent(collider);
 
-	UpdateAttributeEffects();
+	// UpdateAttributeEffects();
 
 	// Устанавливаем текущее здоровье равным максимальному
 	auto healthComponent = GetComponent<HealthComponent>();
@@ -146,7 +146,7 @@ void Player::Update(float deltaTime) {
 
 	HandleWeaponInteraction(deltaTime);
 
-	UpdateAttributeEffects();
+	// UpdateAttributeEffects();
 
 	healt->Update(deltaTime);
 

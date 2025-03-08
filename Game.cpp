@@ -110,7 +110,7 @@ void Game::LoadContent() {
 	enemy2 = std::make_shared<Skelet>(SDL_FPoint{ 0, 64 }, enemyTexture, playerTransform);
 	enemy3 = std::make_shared<Skelet>(SDL_FPoint{ 0, 16 }, enemyTexture, playerTransform);
 
-
+	/*
 	ManagerGame::objects.push_back(enemy);
 	ManagerGame::objects.push_back(enemy1);
 	ManagerGame::objects.push_back(enemy2);
@@ -121,7 +121,7 @@ void Game::LoadContent() {
 	ManagerGame::enemies.push_back(enemy1);
 	ManagerGame::enemies.push_back(enemy2);
 	ManagerGame::enemies.push_back(enemy3);
-
+	*/
 
 
 	ManagerGame::_allWeapons.push_back(weapon);
@@ -130,6 +130,13 @@ void Game::LoadContent() {
 // Logic Update
 void Game::Update(float deltaTime) 
 {
+	pacingSystem.Update(deltaTime);
+
+	if (pacingSystem.shouldSpawnWave()) {
+		spawnWave(pacingSystem.enemiesPerWave);
+		pacingSystem.resetTimer();
+	}
+
 	for (size_t i = 0; i < ManagerGame::objects.size(); ) {
 		auto& obj = ManagerGame::objects[i];
 
@@ -210,4 +217,45 @@ void Game::Run() {
 	}
 
 	UnloadContent();
+}
+
+
+SDL_Rect Game::generateSpawnPoint() const {
+	SDL_Rect spawnPoint { };
+	int side = rand() % 4; // Случайная сторона
+	switch (side) {
+	case 0: // Слева
+		spawnPoint.x = -32; // Размер врага
+		spawnPoint.y = rand() % SCREEN_HEIGHT;
+		break;
+	case 1: // Справа
+		spawnPoint.x = SCREEN_WIDTH + 32;
+		spawnPoint.y = rand() % SCREEN_HEIGHT;
+		break;
+	case 2: // Сверху
+		spawnPoint.x = rand() % SCREEN_WIDTH;
+		spawnPoint.y = -64;
+		break;
+	case 3: // Снизу
+		spawnPoint.x = rand() % SCREEN_WIDTH;
+		spawnPoint.y = SCREEN_HEIGHT + 64;
+		break;
+	}
+	return spawnPoint;
+}
+
+void Game::spawnWave(int count) {
+	SDL_Texture* enemyTexture = TextureLoader::GetInstance().LoadTexture("skelet.png", ManagerGame::renderer);
+	auto playerTransform = player->GetComponent<TransformComponent>();
+
+	for (int i = 0; i < count; ++i) {
+		SDL_Rect pos = generateSpawnPoint();
+		auto enemy = std::make_shared<Skelet>(
+			SDL_FPoint{ static_cast<float>(pos.x), static_cast<float>(pos.y) },
+			enemyTexture,
+			playerTransform
+		);
+		ManagerGame::objects.push_back(enemy);
+		ManagerGame::enemies.push_back(enemy);
+	}
 }

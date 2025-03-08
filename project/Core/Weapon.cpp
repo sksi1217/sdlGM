@@ -15,10 +15,10 @@ Weapon::Weapon(SDL_Texture* texture) {
 	auto weapon = std::make_shared<WeaponComponent>();
 	weapon->m_shells = 5;
 
-	weapon->m_fireRate = 5;
-	weapon->m_bulletInterval = 0.1;
+	weapon->m_fireRate = 1;
+	weapon->m_bulletInterval = 0.4;
 
-	weapon->m_damage = 0;
+	weapon->m_damage = 60;
 	weapon->m_criticalChance = 0.5;
 	weapon->m_criticalMultiplier = 3.5;
 	weapon->m_lifetimeBullet = 2;
@@ -141,7 +141,7 @@ void Weapon::CreateBullet(SDL_FPoint& position, const SDL_FPoint& target, SDL_Te
 	// AnimationComponent: Настройка анимации
 	auto animation = std::make_shared<AnimationComponent>();
 	animation->SpriteRow = 1;
-	animation->animation = std::make_shared<Animation>(16, 16, 4, 1 / (movement->m_movementSpeed * 0.2f));
+	animation->animation = std::make_shared<Animation>(16, 16, 8, 1 / (movement->m_movementSpeed * 0.2f));
 	bullet->AddComponent(animation);
 
 	auto projectile = std::make_shared<ProjectileComponent>();
