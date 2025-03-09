@@ -38,14 +38,19 @@ public:
     bool m_remove_bullet = true;
 
     // Боевые характеристики
-    int m_damage = 10; // Базовый урон
-    float m_criticalChance = 0.1f; // Шанс критического удара (0 = 0%, 1 = 100%)
-    float m_criticalMultiplier = 2.0f; // Множитель критического удара
-
-    // Вампиризм
-
+    int m_damage = 0; // Базовый урон
+    float m_criticalChance = 0.0f; // Шанс критического удара (0 = 0%, 1 = 100%)
     float m_lifetimeBullet = 1.0f; // Время жизни пули
+    float m_vampirism = 0.0f;
+    
+    // 
+    float m_range = 20.0f;
+    
 
-
+    // Не меняется для оружия
+    float m_orbitAngleDegrees = 0.0f;  // Текущий угол в градусах
+    GameObject* owner;
+    TransformComponent* m_playerTransform = nullptr;
+    float m_criticalMultiplier = 2.0f; // Множитель критического удара
     float m_elapsedTime = 0.0f; // Время, прошедшее с последнего выстрела
 };

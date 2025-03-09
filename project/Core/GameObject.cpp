@@ -69,7 +69,7 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
         SDL_RenderCopyExF(renderer, render->Texture, nullptr, &destRect, transform->Rotation, &rotationCenter, flip);
     }
 
-    /*
+    
     // Отрисовка Коллайдера
     if (state->IsCollidable && collider) {
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Зеленый цвет для коллайдера
@@ -94,6 +94,7 @@ void GameObject::Draw(SDL_Renderer* renderer, const Camera& camera) {
         }
     }
 
+    /*
     // Отрисовка сетки с учетом камеры
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Зеленый цвет для сетки
 

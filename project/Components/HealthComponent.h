@@ -16,7 +16,11 @@ class HealthComponent : public Component {
 public:
     float m_currentHealth = 100.0f; // Текущее здоровье
     float m_maxHealth = 100.0f;     // Максимальное здоровье
+
+    float m_vampirism = 0.0f;
+
     float m_regenRate = 1.0f;       // Скорость регенерации здоровья
+
     float m_invincibilityTime = 0.0f; // Время неуязвимости после получения урона
     float m_remainingInvincibility = 0.0f; // Оставшееся время неуязвимости
     bool IsDead = false;          // Флаг смерти

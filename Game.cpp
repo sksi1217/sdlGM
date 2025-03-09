@@ -1,27 +1,21 @@
 ﻿// Game.cpp
-#include "Game.h"
 #include <iostream>
 #include "project/Components/TransformComponent.h"
+#include "project/Systems/CollisionSystem.h"
+#include "project/Utils/TextureLoader.h"
+#include "project/Entities/Skelet.h"
 #include "project/Core/GameObject.h"
 #include "project/Entities/Player.h"
-#include "project/Utils/TextureLoader.h"
-#include "project/Systems/CollisionSystem.h"
-#include "project/Entities/Skelet.h"
+#include "Game.h"
+
+#include "project/Entities/Weapons/MastersKeeper.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 
 std::shared_ptr<GameObject> player;
-/*
-std::shared_ptr<GameObject> enemy;
-std::shared_ptr<GameObject> enemy1;
-std::shared_ptr<GameObject> enemy2;
-std::shared_ptr<GameObject> enemy3;
-*/
 
 Camera camera = { {SCREEN_WIDTH, SCREEN_HEIGHT} };
-
-std::shared_ptr<GameObject> weapon;
 
 CollisionSystem сollisionSystem;
 
@@ -82,11 +76,9 @@ void Game::Initialize() {
 	TextureLoader& textureLoader = TextureLoader::GetInstance();
 	textureLoader.SetBasePath("project/Resources/Textures");
 
-	// Создание текстуры через TextureLoader
-	SDL_Texture* boxTexture = TextureLoader::GetInstance().LoadTexture("Atlas.png", ManagerGame::renderer);
-
 	std::cout << "Initialized Weapons!" << std::endl;
-	weapon = std::make_shared<Weapon>(boxTexture);
+	std::shared_ptr<GameObject> weapon = std::make_shared<Weapon>();
+	std::shared_ptr<GameObject> weapon1 = std::make_shared<MastersKeeper>();
 
 	std::cout << "Game initialized!" << std::endl;
 }
@@ -104,10 +96,10 @@ void Game::LoadContent() {
 	player = std::make_shared<Player>(SDL_FPoint{ 0, 0 }, playerTexture);
 	ManagerGame::objects.push_back(player);
 
-	
 	auto playerTransform = player->GetComponent<TransformComponent>();
-	
+
 	ManagerGame::_allWeapons.push_back(weapon);
+	ManagerGame::_allWeapons.push_back(weapon1);
 }
 
 // Logic Update
@@ -146,6 +138,21 @@ void Game::Update(float deltaTime)
 void Game::Draw() {
 	SDL_SetRenderDrawColor(ManagerGame::renderer, 50, 50, 50, 255);
 	SDL_RenderClear(ManagerGame::renderer);
+
+	// Сортировка объектов по Y-координате
+	std::sort(ManagerGame::objects.begin(), ManagerGame::objects.end(),
+		[](const std::shared_ptr<GameObject>& a, const std::shared_ptr<GameObject>& b) {
+			// Получаем компоненты трансформации
+			auto aTransform = a->GetComponent<TransformComponent>();
+			auto bTransform = b->GetComponent<TransformComponent>();
+
+			// Если компонентов нет - помещаем объекты в конец
+			if (!aTransform) return false;
+			if (!bTransform) return true;
+
+			// Сравниваем Y-координаты (объекты с меньшим Y рисуются раньше)
+			return aTransform->Position.y < bTransform->Position.y;
+		});
 
 	// Drawing of all objects
 	for (auto& obj : ManagerGame::objects) {
@@ -202,17 +209,16 @@ void Game::Run() {
 	UnloadContent();
 }
 
-
 SDL_Rect Game::generateSpawnPoint() const {
 	SDL_Rect spawnPoint { };
 	int side = rand() % 4; // Случайная сторона
 	switch (side) {
 	case 0: // Слева
-		spawnPoint.x = -32; // Размер врага
+		spawnPoint.x = -64; // Размер врага
 		spawnPoint.y = rand() % SCREEN_HEIGHT;
 		break;
 	case 1: // Справа
-		spawnPoint.x = SCREEN_WIDTH + 32;
+		spawnPoint.x = SCREEN_WIDTH + 64;
 		spawnPoint.y = rand() % SCREEN_HEIGHT;
 		break;
 	case 2: // Сверху

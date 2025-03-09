@@ -18,20 +18,28 @@ public:
 		auto colliderA = objA->GetComponent<ColliderComponent>();
 		auto colliderB = objB->GetComponent<ColliderComponent>();
 
-		if ((colliderA->m_layer == ColliderComponent::Layer::Bullet && colliderB->m_layer == ColliderComponent::Layer::Player) ||
+		if ((colliderA->m_layer == ColliderComponent::Layer::BulletNoCollider && colliderB->m_layer == ColliderComponent::Layer::BulletNoCollider) ||
+			(colliderA->m_layer == ColliderComponent::Layer::Bullet && colliderB->m_layer == ColliderComponent::Layer::Bullet) ||
+			(colliderA->m_layer == ColliderComponent::Layer::Item && colliderB->m_layer == ColliderComponent::Layer::Item)) {
+			return false; // Item и игрок не сталкиваются
+		}
+
+		if ((colliderA->m_layer == ColliderComponent::Layer::Player && colliderB->m_layer == ColliderComponent::Layer::BulletNoCollider) ||
+			(colliderA->m_layer == ColliderComponent::Layer::BulletNoCollider && colliderB->m_layer == ColliderComponent::Layer::Player) || 
+			(colliderA->m_layer == ColliderComponent::Layer::Bullet && colliderB->m_layer == ColliderComponent::Layer::Player) ||
 			(colliderA->m_layer == ColliderComponent::Layer::Player && colliderB->m_layer == ColliderComponent::Layer::Bullet)) {
 			return false; // Игрок и пуля не сталкиваются
 		}
 
+		/*
 		if ((colliderA->m_layer == ColliderComponent::Layer::BulletNoCollider && colliderB->m_layer == ColliderComponent::Layer::Enemy) ||
 			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::BulletNoCollider)) {
 			return false; // Враг и пуля не сталкиваются
 		}
+		*/
 
 		if ((colliderA->m_layer == ColliderComponent::Layer::Player && colliderB->m_layer == ColliderComponent::Layer::Item) ||
-			(colliderA->m_layer == ColliderComponent::Layer::Item && colliderB->m_layer == ColliderComponent::Layer::Player) ||
-			(colliderA->m_layer == ColliderComponent::Layer::Enemy && colliderB->m_layer == ColliderComponent::Layer::Item)  ||
-			(colliderA->m_layer == ColliderComponent::Layer::Item && colliderB->m_layer == ColliderComponent::Layer::Item)) {
+			(colliderA->m_layer == ColliderComponent::Layer::Item && colliderB->m_layer == ColliderComponent::Layer::Player)) {
 			return false; // Item и игрок не сталкиваются
 		}
 
@@ -145,24 +153,51 @@ public:
 
 	// Обработка столкновений пули и врага
 	void HandleProjectileEnemyCollision(GameObject* projectile, GameObject* enemy) {
-		auto bullet = projectile->GetComponent<ProjectileComponent>();
-		auto attributesEnemy = std::make_shared<AttributesComponent>();
+    auto bullet = projectile->GetComponent<ProjectileComponent>();
+    if (!bullet) return;
 
-		if (bullet && bullet->m_remove_bullet) {
-			projectile->GetComponent<StateComponent>()->IsActive = false;
-		}
+    // Получаем компоненты врага
+    auto healthEnemy = enemy->GetComponent<HealthComponent>();
+    auto attributesEnemy = enemy->GetComponent<AttributesComponent>();
+    if (!healthEnemy || !attributesEnemy) return;
 
-		std::cout << bullet->CalculateDamage(attributesEnemy->GetArmorPenetration(), attributesEnemy->GetDodgeChance()) <<  std::endl;
+    // Расчет урона с учетом брони и уклонения
+    float damage = bullet->CalculateDamage(
+        attributesEnemy->m_armor,
+        attributesEnemy->m_dodgeChance
+    );
 
-		ApplyDamage(enemy, bullet->CalculateDamage(attributesEnemy->GetArmorPenetration(), attributesEnemy->GetDodgeChance())); // Урон врагу
-	}
+    // Наносим урон врагу
+	ApplyDamage(enemy, damage); // Урон врагу
+    
+    // Если есть вампиризм и враг еще жив
+    if (bullet->m_vampirism > 0 && healthEnemy->m_currentHealth > 0) {
+        // Расчет вампиризма (зависит от нанесенного урона и здоровья врага)
+        int maxHeal = bullet->owner->GetComponent<HealthComponent>()->m_maxHealth;
+        int healAmount = static_cast<int>(
+			damage * bullet->m_vampirism *
+            (healthEnemy->m_currentHealth / (float)healthEnemy->m_maxHealth)
+        );
+        
+        // Лечим игрока с ограничением максимального здоровья
+        auto healthOwner = bullet->owner->GetComponent<HealthComponent>();
+		healthOwner->m_currentHealth = std::min(healthOwner->m_currentHealth + healAmount, healthOwner->m_maxHealth);
+    }
+
+    // Уничтожаем снаряд при попадании
+    if (bullet->m_remove_bullet) {
+        projectile->GetComponent<StateComponent>()->IsActive = false;
+    }
+}
 
 	// Обработка столкновений игрока и врага
 	void HandlePlayerEnemyCollision(GameObject* player, GameObject* enemy) {
 		auto attributesPlayer = player->GetComponent<AttributesComponent>();
 		auto DamageEnemy = enemy->GetComponent<EnemyDamageComponent>();
 
-		ApplyDamage(player, DamageEnemy->CalculateDamage(attributesPlayer->GetArmorPenetration(), attributesPlayer->GetDodgeChance())); // Урон игроку
+		float damage = DamageEnemy->CalculateDamage(attributesPlayer->m_armor, attributesPlayer->m_dodgeChance);
+
+		ApplyDamage(player, damage); // Урон игроку
 		// ApplyDamage(enemy, 1.0f); // Урон врагу (опционально)
 	}
 

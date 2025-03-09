@@ -160,6 +160,8 @@
     <ClCompile Include="project\Core\Weapon.cpp" />
     <ClCompile Include="project\Entities\Player.cpp" />
     <ClCompile Include="project\Entities\Skelet.cpp" />
+    <ClCompile Include="project\Entities\Weapons\MastersKeeper.cpp" />
+    <ClCompile Include="project\Entities\Weapons\ProjectileMastersKeeper.cpp" />
     <ClCompile Include="project\Resources\ManagerGame.cpp" />
     <ClCompile Include="project\Systems\Animation.cpp" />
     <ClCompile Include="project\Systems\CollisionSystem.cpp" />
@@ -189,10 +191,13 @@
     <ClInclude Include="project\Core\Component.h" />
     <ClInclude Include="project\Core\Experience.h" />
     <ClInclude Include="project\Core\GameObject.h" />
+    <ClInclude Include="project\Core\Item.h" />
     <ClInclude Include="project\Core\Projectile.h" />
     <ClInclude Include="project\Core\Weapon.h" />
     <ClInclude Include="project\Entities\Player.h" />
     <ClInclude Include="project\Entities\Skelet.h" />
+    <ClInclude Include="project\Entities\Weapons\MastersKeeper.h" />
+    <ClInclude Include="project\Entities\Weapons\ProjectileMastersKeeper.h" />
     <ClInclude Include="project\Resources\ManagerGame.h" />
     <ClInclude Include="project\Systems\Animation.h" />
     <ClInclude Include="project\Systems\CollisionSystem.h" />

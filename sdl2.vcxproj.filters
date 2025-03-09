@@ -15,6 +15,8 @@
     <ClCompile Include="project\Core\Weapon.cpp" />
     <ClCompile Include="project\Core\Projectile.cpp" />
     <ClCompile Include="project\Core\Experience.cpp" />
+    <ClCompile Include="project\Entities\Weapons\MastersKeeper.cpp" />
+    <ClCompile Include="project\Entities\Weapons\ProjectileMastersKeeper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
@@ -49,5 +51,8 @@
     <ClInclude Include="project\Core\Experience.h" />
     <ClInclude Include="project\Components\ProjectileComponent.h" />
     <ClInclude Include="project\Components\EnemyDamageComponent.h" />
+    <ClInclude Include="project\Entities\Weapons\MastersKeeper.h" />
+    <ClInclude Include="project\Entities\Weapons\ProjectileMastersKeeper.h" />
+    <ClInclude Include="project\Core\Item.h" />
   </ItemGroup>
 </Project>

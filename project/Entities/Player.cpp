@@ -9,13 +9,18 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	AddComponent(transform);
 
 	auto health = std::make_shared<HealthComponent>();
+	health->m_maxHealth = 200;
+	health->m_regenRate = 0.1;
+	health->m_vampirism = 50;
 	AddComponent(health);
 
 	auto attributes = std::make_shared<AttributesComponent>();
 	AddComponent(attributes);
 
+	/*
 	auto ability = std::make_shared<AbilityComponent>();
 	AddComponent(ability);
+	*/
 
 	auto gathering = std::make_shared<ResourceGatheringComponent>();
 	AddComponent(gathering);
@@ -23,32 +28,25 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	auto level = std::make_shared<LevelComponent>();
 	AddComponent(level);
 
-	// MovementComponent: Скорость движения
 	auto movement = std::make_shared<MovementComponent>();
-	movement->m_movementSpeed = 50;
+	movement->m_movementSpeed = 70;
 	AddComponent(movement);
 
-	// StateComponent: Активность и коллизии
 	auto state = std::make_shared<StateComponent>();
 	AddComponent(state);
 
-	// PhysicsComponent: Масса и сила отталкивания
 	auto physics = std::make_shared<PhysicsComponent>();
-	// physics->Mass = 100;
 	AddComponent(physics);
 
-	// RenderComponent: Текстура и цвет
 	auto render = std::make_shared<RenderComponent>();
 	render->Texture = texture;
 	if (!render->Texture) std::cerr << "Failed to load player texture: " << texture << std::endl;
 	AddComponent(render);
 
-	// AnimationComponent: Настройка анимации
 	auto animation = std::make_shared<AnimationComponent>();
 	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->m_movementSpeed * 0.2f));
 	AddComponent(animation);
 
-	// ColliderComponent
 	auto collider = std::make_shared<ColliderComponent>();
 	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
 	collider->OffsetColliderX = 8; // Смещение коллайдера по X
@@ -57,67 +55,11 @@ Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
 	collider->m_layer = ColliderComponent::Layer::Player;
 	AddComponent(collider);
 
-	// UpdateAttributeEffects();
-
 	// Устанавливаем текущее здоровье равным максимальному
 	auto healthComponent = GetComponent<HealthComponent>();
 	if (healthComponent) {
 		healthComponent->m_currentHealth = healthComponent->m_maxHealth;
 	}
-}
-
-void Player::ResetAttributeEffects() {
-	auto attributes = GetComponent<AttributesComponent>();
-	auto health = GetComponent<HealthComponent>();
-	auto movement = GetComponent<MovementComponent>();
-	auto gathering = GetComponent<ResourceGatheringComponent>();
-	auto ability = GetComponent<AbilityComponent>();
-
-	if (!attributes || !health || !movement || !gathering || !ability) return;
-
-	// Сброс здоровья и восстановления
-	health->m_maxHealth = 100; // Базовое здоровье
-	health->m_regenRate = 0.0f; // Базовое восстановление здоровья
-
-	// Сброс шанса уклонения, брони и скорости
-	attributes->SetDodgeChance(0.1f); // Базовый шанс уклонения
-	attributes->SetArmor(0); // Базовая броня
-	movement->m_movementSpeed = 50; // Базовая скорость передвижения
-
-	// Сброс радиусов подбора и снижения перезарядки
-	attributes->SetCooldownReduction(0); // Базовое снижение перезарядки
-	gathering->SetGatherRadius(0); // Базовый радиус подбора
-	gathering->SetSucklingRadius(0); // Базовый радиус притягивания
-}
-
-void Player::UpdateAttributeEffects() {
-	auto attributes = GetComponent<AttributesComponent>();
-	auto health = GetComponent<HealthComponent>();
-	auto movement = GetComponent<MovementComponent>();
-	auto gathering = GetComponent<ResourceGatheringComponent>();
-	auto ability = GetComponent<AbilityComponent>();
-
-	if (!attributes || !health || !movement || !gathering || !ability) return;
-
-	// Сначала сбрасываем все эффекты, чтобы избежать накопления
-	ResetAttributeEffects();
-
-	// Влияние силы (Strength)
-	int strength = attributes->GetStrength();
-	health->m_maxHealth += strength * 5; // Здоровье увеличивается на 5 за каждую единицу силы
-	health->m_regenRate += strength * 0.1f; // Восстановление здоровья увеличивается на 0.1 за каждую единицу силы
-
-	// Влияние ловкости (Agility)
-	int agility = attributes->GetAgility();
-	attributes->SetDodgeChance(agility * 0.01f); // Шанс уклонения увеличивается на 1% за каждую единицу ловкости
-	attributes->SetArmor(agility / 6); // Броня увеличивается на 1/6 за каждую единицу ловкости
-	movement->m_movementSpeed += agility * 1; // Скорость передвижения увеличивается на 1 за каждую единицу ловкости
-
-	// Влияние интеллекта (Intelligence)
-	int intelligence = attributes->GetIntelligence();
-	attributes->SetCooldownReduction(intelligence * 0.01f); // Снижение времени перезарядки способностей
-	gathering->SetGatherRadius(intelligence * 5); // Радиус подбора увеличивается на 5 за каждую единицу интеллекта
-	gathering->SetSucklingRadius(intelligence * 10); // Радиус притягивания увеличивается на 10 за каждую единицу интеллекта
 }
 
 void Player::Update(float deltaTime) {
@@ -139,14 +81,12 @@ void Player::Update(float deltaTime) {
 
 	// Обновление позиции с учетом времени
 	transform->Position = MathUtils::Add(transform->Position,
-		MathUtils::Multiply(physics->Velocity, movement->m_movementSpeed * deltaTime));;
+		MathUtils::Multiply(physics->Velocity, (movement->m_movementSpeed * (movement->m_movementSpeed * movement->m_movementSpeedModifier / 100)) * deltaTime));;
 
 	// Обновление коллайдера
 	if (collider) collider->UpdatePosition(transform->Position);
 
 	HandleWeaponInteraction(deltaTime);
-
-	// UpdateAttributeEffects();
 
 	healt->Update(deltaTime);
 
@@ -173,7 +113,7 @@ void Player::ResourceGathering(SDL_FPoint& playerPosition, float deltaTime) {
 	if (collider) collider->UpdatePosition(transform->Position);
 
 	// 2. Проверяем обязательные компоненты
-	if (!gathering || !level || !transform) return;
+	if (!gathering || !level || !transform || !collider) return;
 
 	// 3. Получаем позицию с учетом коллайдера
 	SDL_FPoint colliderPos = {
@@ -214,9 +154,6 @@ void Player::ResourceGathering(SDL_FPoint& playerPosition, float deltaTime) {
 }
 
 void Player::HandleWeaponInteraction(float deltaTime) {
-	// Увеличиваем прошедшее время
-	// ElapsedTime += deltaTime;
-
 	if (ManagerGame::_allWeapons.size() > 0) {
 		for (const auto& obj : ManagerGame::_allWeapons) { // Итерация по unique_ptr
 			if (!obj) continue; // Проверка на null-указатель
@@ -229,7 +166,6 @@ void Player::HandleWeaponInteraction(float deltaTime) {
 				weapon->Shoot(this, deltaTime);
 			}
 		}
-		// ElapsedTime = 0;
 	}
 }
 

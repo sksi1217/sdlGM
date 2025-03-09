@@ -16,8 +16,6 @@ public:
 
 protected:
     void ResourceGathering(SDL_FPoint& posistionPlr, float deltaTime);
-    void UpdateAttributeEffects();
-    void ResetAttributeEffects();
 private:
     // float ElapsedTime = 0;
 

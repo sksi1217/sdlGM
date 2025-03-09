@@ -11,20 +11,24 @@ class Player;
 
 class Weapon : public GameObject {
 public:
-    // Конструктор
-    Weapon(SDL_Texture* texture);
+	// Конструктор
+	Weapon();
 
-    // Выстрел
-    virtual void Shoot(Player* player, float deltaTime);
+	// Выстрел
+	virtual void Shoot(Player* player, float deltaTime);
 
 protected:
-    GameObject* m_nearestEnemy = nullptr; // Ближайший враг
+	SDL_Texture* texture = nullptr;
+	GameObject* m_nearestEnemy = nullptr; // Ближайший враг
 
-    // Создание пули
-    virtual void CreateBullet(SDL_FPoint& position, const SDL_FPoint& direction, SDL_Texture* texture);
+	virtual void InitializeRenderComponent();
+	virtual void InitializeWeaponComponent();
+	virtual void InitializeProjectileComponents(std::shared_ptr<GameObject>& projectile, Player* player, const SDL_FPoint& target);
 
-private:
-    GameObject* FindNearestEnemy(Player* player);
+	// Создание пули
+	virtual void CreateProjectile(Player* player, const SDL_FPoint& direction);
+
+	virtual GameObject* FindNearestEnemy(Player* player);
 };
 
 #endif // WEAPON_H
