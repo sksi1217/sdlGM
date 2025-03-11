@@ -14,6 +14,8 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 
 std::shared_ptr<GameObject> player;
+std::shared_ptr<GameObject> enemy;
+std::shared_ptr<GameObject> weapon;
 
 Camera camera = { {SCREEN_WIDTH, SCREEN_HEIGHT} };
 
@@ -77,14 +79,16 @@ void Game::Initialize() {
 	textureLoader.SetBasePath("project/Resources/Textures");
 
 	std::cout << "Initialized Weapons!" << std::endl;
-	std::shared_ptr<GameObject> weapon = std::make_shared<Weapon>();
-	std::shared_ptr<GameObject> weapon1 = std::make_shared<MastersKeeper>();
+	weapon = std::make_shared<Weapon>();
 
 	std::cout << "Game initialized!" << std::endl;
 }
 
 // Resource Loading
 void Game::LoadContent() {
+	
+	// std::shared_ptr<GameObject> weapon1 = std::make_shared<MastersKeeper>();
+
 	std::cout << "Loading content..." << std::endl;
 
 	// Создание текстуры через TextureLoader
@@ -98,19 +102,27 @@ void Game::LoadContent() {
 
 	auto playerTransform = player->GetComponent<TransformComponent>();
 
+	enemy = std::make_shared<Skelet>(SDL_FPoint{ 50, 0 }, enemyTexture, playerTransform);
+	ManagerGame::objects.push_back(enemy);
+	ManagerGame::enemies.push_back(enemy);
+
+
 	ManagerGame::_allWeapons.push_back(weapon);
-	ManagerGame::_allWeapons.push_back(weapon1);
+	// ManagerGame::_allWeapons.push_back(weapon1);
 }
 
 // Logic Update
 void Game::Update(float deltaTime) 
 {
+
+	/*
 	pacingSystem.Update(deltaTime);
 
 	if (pacingSystem.shouldSpawnWave()) {
 		spawnWave();
 		pacingSystem.resetTimer();
 	}
+	*/
 
 	for (size_t i = 0; i < ManagerGame::objects.size(); ) {
 		auto& obj = ManagerGame::objects[i];

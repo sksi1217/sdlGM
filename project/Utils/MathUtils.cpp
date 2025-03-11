@@ -50,3 +50,7 @@ float MathUtils::NextFloat() {
     static std::uniform_real_distribution<> dis(0.0f, 1.0f);
     return dis(gen);
 }
+
+SDL_FPoint MathUtils::Scale(const SDL_FPoint& vector, float scale) {
+    return { vector.x * scale, vector.y * scale };
+}

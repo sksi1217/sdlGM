@@ -54,5 +54,10 @@
     <ClInclude Include="project\Entities\Weapons\MastersKeeper.h" />
     <ClInclude Include="project\Entities\Weapons\ProjectileMastersKeeper.h" />
     <ClInclude Include="project\Core\Item.h" />
+    <ClInclude Include="project\Components\DeathComponent.h" />
+    <ClInclude Include="project\Components\Events\EnemyDeathComponent.h" />
+    <ClInclude Include="project\Components\Events\PlayerDeathComponent.h" />
+    <ClInclude Include="project\Components\EntitiesComponent.h" />
+    <ClInclude Include="project\Core\Entities.h" />
   </ItemGroup>
 </Project>

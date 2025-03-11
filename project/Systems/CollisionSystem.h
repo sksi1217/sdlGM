@@ -8,7 +8,6 @@
 
 class CollisionSystem {
 public:
-
 	// Генерация сетки для оптимизации коллизий
 	std::unordered_map<int, std::vector<GameObject*>> GenerateGrid(int cellSize, int width, int height);
 
@@ -216,7 +215,7 @@ public:
 		if (health) {
 			health->TakeDamage(damage);
 
-			if (health->IsDead) { // Проверяем, умер ли объект
+			if (health->IsDeadState()) { // Проверяем, умер ли объект
 				// Отключаем объект через StateComponent
 				if (auto state = target->GetComponent<StateComponent>()) {
 					state->IsActive = false; // Устанавливаем флаг неактивности
@@ -225,8 +224,9 @@ public:
 					std::cerr << "Error: StateComponent not found in target object!" << std::endl;
 				}
 
+				auto dead = target->GetComponent<DeathComponent>();
 				// Вызываем обработчик смерти
-				health->OnDeath(target);
+				dead->OnDeath(target);
 			}
 		}
 	}

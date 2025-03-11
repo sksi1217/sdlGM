@@ -1,11 +1,12 @@
 ﻿#pragma once
 
 #include "../Core/Component.h"
+#include "../Core/Entities.h"
 
 #include "../Resources/ManagerGame.h"
 #include "../Core/Weapon.h"
 
-class Player : public GameObject {
+class Player : public Entities {
 public:
     // Конструктор с параметрами
     Player(const SDL_FPoint& startPosition, SDL_Texture* texture);
@@ -16,6 +17,13 @@ public:
 
 protected:
     void ResourceGathering(SDL_FPoint& posistionPlr, float deltaTime);
+
+    void InitializeComponent(const SDL_FPoint& startPosition, SDL_Texture* texture) override {
+        Entities::InitializeComponent(startPosition, texture);
+
+        auto level = std::make_shared<LevelComponent>();
+        AddComponent(level);
+    }
 private:
     // float ElapsedTime = 0;
 

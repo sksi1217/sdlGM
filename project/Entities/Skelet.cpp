@@ -2,55 +2,34 @@
 #include <iostream>
 
 // Инициальзация
-Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture, std::shared_ptr<TransformComponent> playerTransform): playerTransform(playerTransform) {
-	// TransformComponent: Начальная позиция и масштаб
-	auto transform = std::make_shared<TransformComponent>();
-	transform->Position = startPosition;
-	AddComponent(transform);
+Skelet::Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture, std::shared_ptr<TransformComponent> playerTransform): playerTransform(playerTransform) {	
+	InitializeComponent(startPosition, texture);
 
-	auto health = std::make_shared<HealthComponent>();
-	AddComponent(health);
+	auto render = GetComponent<RenderComponent>();
+	auto transform = GetComponent<TransformComponent>();
+	auto animation = GetComponent<AnimationComponent>();
+	auto movement = GetComponent<MovementComponent>();
+	auto collider = GetComponent<ColliderComponent>();
 
-	auto attributes = std::make_shared<AttributesComponent>();
-	AddComponent(attributes);
-
-	// MovementComponent: Скорость движения
-	auto movement = std::make_shared<MovementComponent>();
-	movement->m_movementSpeed = 20;
-	AddComponent(movement);
-
-	// StateComponent: Активность и коллизии
-	auto state = std::make_shared<StateComponent>();
-	AddComponent(state);
-
-	// PhysicsComponent: Масса и сила отталкивания
-	auto physics = std::make_shared<PhysicsComponent>();
-	physics->IsStatic = false;
-	physics->Mass = 0.1;
-	AddComponent(physics);
-
-	// RenderComponent: Текстура и цвет
-	auto render = std::make_shared<RenderComponent>();
 	render->Texture = texture;
 	if (!render->Texture) std::cerr << "Failed to load player texture: " << texture << std::endl;
-	AddComponent(render);
 
-	// AnimationComponent: Настройка анимации
-	auto animation = std::make_shared<AnimationComponent>();
-	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->m_movementSpeed * 0.2f));
-	AddComponent(animation);
+	transform->Position = startPosition;
 
-	auto enemyDamageComponent = std::make_shared<EnemyDamageComponent>();
-	AddComponent(enemyDamageComponent);
+	movement->m_movementSpeed = 0;
 
-	// ColliderComponent
-	auto collider = std::make_shared<ColliderComponent>();
-	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
-	collider->OffsetColliderX = 8; // Смещение коллайдера по X
-	collider->OffsetColliderY = 14; // Смещение коллайдера по Y
-	collider->CircleRadius = 2.7; // Радиус круга
+	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE);
+	collider->OffsetColliderX = 8;
+	collider->OffsetColliderY = 14;
+	collider->CircleRadius = 2.7;
 	collider->m_layer = ColliderComponent::Layer::Enemy;
-	AddComponent(collider);
+
+	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->m_movementSpeed * 0.2f));
+
+	auto healthComponent = GetComponent<HealthComponent>();
+	if (healthComponent) {
+		healthComponent->m_currentHealth = healthComponent->m_maxHealth;
+	}
 }
 
 void Skelet::Update(float deltaTime) {

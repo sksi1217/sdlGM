@@ -3,59 +3,34 @@
 
 // Инициальзация
 Player::Player(const SDL_FPoint& startPosition, SDL_Texture* texture) {
-	// TransformComponent: Начальная позиция и масштаб
-	auto transform = std::make_shared<TransformComponent>();
-	transform->Position = startPosition;
-	AddComponent(transform);
+	InitializeComponent(startPosition, texture);
 
-	auto health = std::make_shared<HealthComponent>();
+	auto render = GetComponent<RenderComponent>();
+	auto transform = GetComponent<TransformComponent>();
+	auto animation = GetComponent<AnimationComponent>();
+	auto movement = GetComponent<MovementComponent>();
+	auto collider = GetComponent<ColliderComponent>();
+	auto health = GetComponent<HealthComponent>();
+
+	render->Texture = texture;
+	if (!render->Texture) std::cerr << "Failed to load player texture: " << texture << std::endl;
+
+	transform->Position = startPosition;
+
 	health->m_maxHealth = 200;
 	health->m_regenRate = 0.1;
 	health->m_vampirism = 50;
-	AddComponent(health);
 
-	auto attributes = std::make_shared<AttributesComponent>();
-	AddComponent(attributes);
+	movement->m_movementSpeed = 60;
 
-	/*
-	auto ability = std::make_shared<AbilityComponent>();
-	AddComponent(ability);
-	*/
-
-	auto gathering = std::make_shared<ResourceGatheringComponent>();
-	AddComponent(gathering);
-
-	auto level = std::make_shared<LevelComponent>();
-	AddComponent(level);
-
-	auto movement = std::make_shared<MovementComponent>();
-	movement->m_movementSpeed = 70;
-	AddComponent(movement);
-
-	auto state = std::make_shared<StateComponent>();
-	AddComponent(state);
-
-	auto physics = std::make_shared<PhysicsComponent>();
-	AddComponent(physics);
-
-	auto render = std::make_shared<RenderComponent>();
-	render->Texture = texture;
-	if (!render->Texture) std::cerr << "Failed to load player texture: " << texture << std::endl;
-	AddComponent(render);
-
-	auto animation = std::make_shared<AnimationComponent>();
-	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->m_movementSpeed * 0.2f));
-	AddComponent(animation);
-
-	auto collider = std::make_shared<ColliderComponent>();
-	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
-	collider->OffsetColliderX = 8; // Смещение коллайдера по X
-	collider->OffsetColliderY = 14; // Смещение коллайдера по Y
-	collider->CircleRadius = 2; // Радиус круга
+	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE);
+	collider->OffsetColliderX = 8;
+	collider->OffsetColliderY = 14;
+	collider->CircleRadius = 2.7;
 	collider->m_layer = ColliderComponent::Layer::Player;
-	AddComponent(collider);
 
-	// Устанавливаем текущее здоровье равным максимальному
+	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / (movement->m_movementSpeed * 0.2f));
+
 	auto healthComponent = GetComponent<HealthComponent>();
 	if (healthComponent) {
 		healthComponent->m_currentHealth = healthComponent->m_maxHealth;

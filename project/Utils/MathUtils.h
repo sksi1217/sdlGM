@@ -22,4 +22,7 @@ namespace MathUtils {
     SDL_FPoint Negate(const SDL_FPoint& vector);
     // Генерация случайного числа от 0 до 1
     float NextFloat();
+    // Масштабирование вектора
+    SDL_FPoint Scale(const SDL_FPoint& vector, float scale);
+
 }

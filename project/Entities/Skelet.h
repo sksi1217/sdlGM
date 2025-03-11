@@ -1,8 +1,10 @@
 ﻿#pragma once
 
-#include "../Core/EntityHeaders.h"
+#include "../Components/EntitiesComponent.h"
+#include "../Core/Entities.h"
+#include "../Components/Events/EnemyDeathComponent.h"
 
-class Skelet : public GameObject {
+class Skelet : public Entities {
 public:
     // Конструктор с параметрами
     Skelet(const SDL_FPoint& startPosition, SDL_Texture* texture, std::shared_ptr<TransformComponent> playerTransform);

@@ -1,4 +1,5 @@
-﻿#include "MastersKeeper.h"
+﻿/*
+#include "MastersKeeper.h"
 #include "ProjectileMastersKeeper.h"
 
 MastersKeeper::MastersKeeper()
@@ -135,3 +136,4 @@ void MastersKeeper::InitializeProjectileComponents(std::shared_ptr<GameObject>& 
 	projectile->m_vampirism = attributesPlr->m_vampirism;
 	bullet->AddComponent(projectile);
 }
+*/

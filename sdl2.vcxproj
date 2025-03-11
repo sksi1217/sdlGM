@@ -173,9 +173,13 @@
     <ClInclude Include="project\Components\AnimationComponent.h" />
     <ClInclude Include="project\Components\AttributesComponent.h" />
     <ClInclude Include="project\Components\ColliderComponent.h" />
+    <ClInclude Include="project\Components\DeathComponent.h" />
     <ClInclude Include="project\Components\EffectComponent.h" />
     <ClInclude Include="project\Components\EnemyDamageComponent.h" />
+    <ClInclude Include="project\Components\EntitiesComponent.h" />
     <ClInclude Include="project\Components\EntityHeaders.h" />
+    <ClInclude Include="project\Components\Events\EnemyDeathComponent.h" />
+    <ClInclude Include="project\Components\Events\PlayerDeathComponent.h" />
     <ClInclude Include="project\Components\HealthComponent.h" />
     <ClInclude Include="project\Components\AbilityComponent.h" />
     <ClInclude Include="project\Components\LevelComponent.h" />
@@ -189,6 +193,7 @@
     <ClInclude Include="project\Components\WeaponComponent.h" />
     <ClInclude Include="project\Core\Camera.h" />
     <ClInclude Include="project\Core\Component.h" />
+    <ClInclude Include="project\Core\Entities.h" />
     <ClInclude Include="project\Core\Experience.h" />
     <ClInclude Include="project\Core\GameObject.h" />
     <ClInclude Include="project\Core\Item.h" />

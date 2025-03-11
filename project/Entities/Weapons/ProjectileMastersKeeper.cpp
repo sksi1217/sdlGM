@@ -1,6 +1,7 @@
 ﻿#include "ProjectileMastersKeeper.h"
 #include <cmath>
 
+/*
 void ProjectileMastersKeeper::Update(float deltaTime)
 {
     auto weapon = GetComponent<WeaponComponent>();
@@ -46,3 +47,4 @@ void ProjectileMastersKeeper::Update(float deltaTime)
         animationComponent->animation->Update(true, static_cast<Uint32>(deltaTime * 1000.0f));
     }
 }
+*/

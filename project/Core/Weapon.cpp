@@ -9,7 +9,7 @@ Weapon::Weapon() {
     InitializeWeaponComponent();
 }
 
-
+#pragma region Инициализация оружия
 void Weapon::InitializeRenderComponent() {
 	auto render = std::make_shared<RenderComponent>();
 	render->Texture = texture;
@@ -18,21 +18,19 @@ void Weapon::InitializeRenderComponent() {
 	}
 	AddComponent(render);
 }
-
-
 void Weapon::InitializeWeaponComponent() {
 	auto weapon = std::make_shared<WeaponComponent>();
 	weapon->m_damage = 1;
 	weapon->m_criticalChance = 0.5f;
 	weapon->m_range = 100;
-	weapon->m_shells = 5;
+	weapon->m_shells = 1;
 	weapon->m_fireRate = 1.0f;
 	weapon->m_bulletInterval = 0.3f;
-	weapon->accuracy = 0.3f;
-	weapon->m_lifetimeBullet = 1;
+	weapon->accuracy = 1;
+	weapon->m_lifetimeBullet = 6;
 	AddComponent(weapon);
 }
-
+#pragma endregion
 
 void Weapon::Shoot(Player* player, float deltaTime) {
 	auto weapon = GetComponent<WeaponComponent>();
@@ -44,8 +42,6 @@ void Weapon::Shoot(Player* player, float deltaTime) {
 
 	// Увеличиваем прошедшее время
 	weapon->m_elapsedTime += deltaTime;
-
-	//float cooldown = attributes->m_dodgeChance;
 
 	// Проверяем, нужно ли начать залп
 	if (!weapon->im_isFiringZalp &&
@@ -84,17 +80,16 @@ void Weapon::Shoot(Player* player, float deltaTime) {
 
 void Weapon::CreateProjectile(Player* player, const SDL_FPoint& target) {
 	// Создаем новую пулю как GameObject
-	std::shared_ptr<GameObject> bullet = std::make_shared<Projectile>();
+	std::shared_ptr<GameObject> projectile = std::make_shared<Projectile>();
 
-	InitializeProjectileComponents(bullet, player, target);
+	InitializeProjectileComponents(projectile, player, target);
 	
-
 	// Добавляем пулю в игровой мир
-	ManagerGame::objects.push_back(bullet);
+	ManagerGame::objects.push_back(projectile);
 }
 
 
-void Weapon::InitializeProjectileComponents(std::shared_ptr<GameObject>& bullet,
+void Weapon::InitializeProjectileComponents(std::shared_ptr<GameObject>& projectile,
 	Player* player,
 	const SDL_FPoint& target) 
 {
@@ -108,34 +103,14 @@ void Weapon::InitializeProjectileComponents(std::shared_ptr<GameObject>& bullet,
 	auto render = std::make_shared<RenderComponent>();
 	render->Texture = GetComponent<RenderComponent>()->Texture;
 	if (!render->Texture) std::cerr << "Bullet texture is missing" << std::endl;
-	bullet->AddComponent(render);
+	projectile->AddComponent(render);
 
-	bullet->AddComponent(std::make_shared<StateComponent>());
+	projectile->AddComponent(std::make_shared<StateComponent>());
 
 	auto animation = std::make_shared<AnimationComponent>();
 	animation->SpriteRow = 1; // Строка в спрайт-листе
 	animation->animation = std::make_shared<Animation>(16, 16, 8, 1.0f / 20.0f);
-	bullet->AddComponent(animation);
-#pragma endregion
-
-#pragma region направление и скорость Projectile
-	auto physics = std::make_shared<PhysicsComponent>();
-	SDL_FPoint direction = MathUtils::Subtract(target, bullet->GetComponent<TransformComponent>()->Position);
-	direction = MathUtils::Normalize(direction);
-	// Добавляем случайное отклонение (учитываем точность оружия)
-	if (weapon->accuracy < 1.0f) {
-		static std::mt19937 gen(std::random_device{}());
-		std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
-		direction.x += dist(gen) * (1.0f - weapon->accuracy);
-		direction.y += dist(gen) * (1.0f - weapon->accuracy);
-		direction = MathUtils::Normalize(direction); // Нормализуем после добавления шума
-	}
-	physics->Velocity = direction;
-	bullet->AddComponent(physics);
-
-	auto movement = std::make_shared<MovementComponent>();
-	movement->m_movementSpeed = 20;
-	bullet->AddComponent(movement);
+	projectile->AddComponent(animation);
 #pragma endregion
 
 #pragma region Для увеличения Projectile
@@ -148,24 +123,56 @@ void Weapon::InitializeProjectileComponents(std::shared_ptr<GameObject>& bullet,
 	};
 	transform->Origin = { 8.0f, 8.0f }; // Центр спрайта
 	transform->Scale = 0.5f; // Масштаб пули
-	bullet->AddComponent(transform);
+	projectile->AddComponent(transform);
 
 	auto collider = std::make_shared<ColliderComponent>();
 	collider->SetColliderType(ColliderComponent::ColliderType::CIRCLE); // Установка круглого коллайдера
 	collider->CircleRadius = 1.5; // Радиус круга
 	collider->m_layer = ColliderComponent::Layer::Bullet;
-	bullet->AddComponent(collider);
+	projectile->AddComponent(collider);
+#pragma endregion
+
+#pragma region направление и скорость Projectile
+	auto physics = std::make_shared<PhysicsComponent>();
+	auto projectilePos = projectile->GetComponent<TransformComponent>()->Position;
+
+	SDL_FPoint direction = MathUtils::Subtract(target, projectilePos);
+
+	SDL_FPoint originOffsetEnemy = { 0, 0 };
+	direction = {
+		direction.x + originOffset.x,
+		direction.y + originOffset.y
+	};
+
+	direction = MathUtils::Normalize(direction);
+	/*
+	// Добавляем случайное отклонение (учитываем точность оружия)
+	if (weapon->accuracy < 1.0f) {
+		static std::mt19937 gen(std::random_device{}());
+		std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+		direction.x += dist(gen) * (1.0f - weapon->accuracy);
+		direction.y += dist(gen) * (1.0f - weapon->accuracy);
+		direction = MathUtils::Normalize(direction); // Нормализуем после добавления шума
+	}
+	*/
+	physics->Velocity = direction;
+	projectile->AddComponent(physics);
+
+	auto movement = std::make_shared<MovementComponent>();
+	movement->m_movementSpeed = 5;
+	projectile->AddComponent(movement);
 #pragma endregion
 
 #pragma region Характеристики Projectile
 	auto attributesPlr = player->GetComponent<AttributesComponent>();
-	auto projectile = std::make_shared<ProjectileComponent>();
-	projectile->owner = player; // Устанавливаем владельца
-	projectile->m_damage = weapon->m_damage;
-	projectile->m_criticalChance = weapon->m_criticalChance;
-	projectile->m_lifetimeBullet = weapon->m_lifetimeBullet;
-	projectile->m_vampirism = attributesPlr->m_vampirism;
-	bullet->AddComponent(projectile);
+	auto projectileComp = std::make_shared<ProjectileComponent>();
+	projectileComp->owner = player; // Устанавливаем владельца
+	projectileComp->types = { ProjectileComponent::Type::Straight };
+	projectileComp->m_damage = weapon->m_damage;
+	projectileComp->m_criticalChance = weapon->m_criticalChance;
+	projectileComp->m_lifetimeBullet = weapon->m_lifetimeBullet;
+	projectileComp->m_vampirism = attributesPlr->m_vampirism;
+	projectile->AddComponent(projectileComp);
 #pragma endregion
 }
 
